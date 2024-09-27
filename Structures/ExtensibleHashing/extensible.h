@@ -21,6 +21,10 @@
 
 using namespace std;
 
+int posBucket(string key, int d)  {
+    hash<string> hasher;
+    return hasher(key) & ((1 << d) - 1);  // Considerar solo los bits de la profundidad global.
+}
 int posBucket(int key, int d)  {
     hash<int> hasher;
     return hasher(key) & ((1 << d) - 1);  // Considerar solo los bits de la profundidad global.
@@ -90,7 +94,6 @@ private:
     void splitOnlyBucket(Bucket* bucket, int pos) {
         Bucket* oneBucket = new Bucket(0, bucket->localDepth);
         Bucket* zeroBucket = new Bucket(0, bucket->localDepth);
-
         int ones = 0;
         int zeroes = 0;
 
@@ -100,14 +103,17 @@ private:
 
         for(int i = 0; i < bucket->size; i++) {
             Record record = bucket->records[i];
+            // char to string
+            string trackName (record.track_name);
+
             // generar nuevas posiciones, unos tedran la misma posicion y
             // otros incrementara
-            int newPos = posBucket(record.code, bucket->localDepth + 1);
-            int lastPos = posBucket(record.code, bucket->localDepth);
+            int newPos = posBucket(trackName, bucket->localDepth + 1);
+            int lastPos = posBucket(trackName, bucket->localDepth);
             if(newPos == lastPos) {
                 zeroBucket->records[zeroes] = record;
                 zeroes++;
-                zeroesHash = newPos; // pos del bucket
+                zeroesHash = lastPos; // pos del bucket
             } else {
                 oneBucket->records[ones] = record;
                 ones++;
@@ -116,16 +122,19 @@ private:
 
         }
 
+
         zeroBucket->size = zeroes;
         oneBucket->size = ones;
 
-        oneBucket->localDepth = bucket->localDepth + 1;
-        zeroBucket->localDepth = bucket->localDepth + 1;
+        oneBucket->localDepth++;
+        zeroBucket->localDepth++;
 
-        writeBucket(zeroBucket, indexFile.posBuckets[zeroesHash]);
+        bucket->localDepth++;
+        // sobreescribir el anterior bucket y crear uno para los nuevos datos
+        writeBucket(zeroBucket, pos);
         int newBucketPos = writeBucket(oneBucket, -1);
-
         for(int i = 0; i < indexFile.size; i++) {
+            //TODO DESCOMENTAR EL OTOR POSBUCKETS
         // todos los indices que apuntan al bucket y su nuevo es es diferente del antiguo
             if(indexFile.posBuckets[i] == pos && posBucket(i, bucket->localDepth + 1) != posBucket(i, bucket->localDepth)) {
                 indexFile.posBuckets[i] = newBucketPos;
@@ -187,27 +196,43 @@ private:
         fileIndex.read((char*)&sz, sizeof(int));
         fileIndex.read((char*)arr, sizeof(int) * indexFile.size );
 
+
+        indexFile.globalDepth = gd;
+        indexFile.size = sz;
+        for(int i = 0; i < indexFile.size; i++) {
+            indexFile.posBuckets[i] = arr[i];
+        }
+
     }
 
 public:
-    ExtendibleHashing(string filedata, string fileindex) {
-        // Create files
-        fileIndex.open(fileindex, ios::out | ios::binary);
-        fileData.open(filedata, ios::out | ios::binary);
-
-        if (!fileIndex.is_open() || !fileData.is_open()) {
-            throw runtime_error("Error opening files");
-        }
-
+    ~ExtendibleHashing() {
         fileIndex.close();
         fileData.close();
+    }
+    ExtendibleHashing(string filedata, string fileindex) {
 
-        // open to read
-        fileIndex.open(fileindex, ios::out | ios::binary | ios::in);
-        fileData.open(filedata, ios::out | ios::binary | ios::in);
+        fileIndex.open(fileindex, std::ios::in | std::ios::out | std::ios::binary);
+        fileData.open(filedata, std::ios::in | std::ios::out | std::ios::binary);
+
+        // Si no existen crearlo y abrirlos otra vez
+        if (!fileIndex.is_open()) {
+            fileIndex.open(fileindex, std::ios::out | std::ios::binary);
+            fileIndex.close();
+            fileIndex.open(fileindex, std::ios::in | std::ios::out | std::ios::binary);
+        }
+
+        if (!fileData.is_open()) {
+            fileData.open(filedata, std::ios::out | std::ios::binary);
+            fileData.close();
+            fileData.open(filedata, std::ios::in | std::ios::out | std::ios::binary);
+        }
+
+        if (!fileIndex.is_open() || !fileData.is_open()) {
+            throw std::runtime_error("Error opening files");
+        }
 
         fileIndex.seekg(0, ios::end);
-
         indexFile = IndexFile();
 
         if(fileIndex.tellg() < 1) {
@@ -237,10 +262,130 @@ public:
         }
 
     }
+    bool remove(string key) {
+
+
+        // encontrar el registro
+        int posIndex = posBucket(key, indexFile.globalDepth);
+        int pos = indexFile.posBuckets[posIndex];
+
+        // buscar en el bucker head
+        Bucket* theBucket = readBucket(pos);
+        int size = theBucket->size;
+        for(int i = 0; i < size; i++) {
+            // move the last in bucket
+            if(theBucket->records[i].track_name == key) {
+                Record lastRecord = theBucket->records[size - 1];
+                theBucket->records[i] = lastRecord;
+                theBucket->size--;
+
+                writeBucket(theBucket, pos);
+                // si hay registros en la chain, ajustar el indice
+                if(theBucket->size == 0 && theBucket->nextBucket != -1) {
+
+                    indexFile.posBuckets[posIndex] = theBucket->nextBucket;
+                    updateFileIndex();
+                }
+                // bucket relacionado
+                int relatedBucketAux = pow(2, theBucket->localDepth - 1);
+                int posRelatedBucket = posIndex ^ relatedBucketAux;
+                // Bucket* relatedBucket = readBucket(posRelatedBucket);
+                // // combinar al bucket si su bucket relacionado  no tiene chain
+                // // &  (solo si la profundidad del buckt es mayor a 1)
+                //
+                // if(relatedBucket != nullptr && relatedBucket->nextBucket == -1 && theBucket->size == 0 && theBucket->localDepth > 1) {
+                //     for(int j = 0; j < indexFile.size; j++) {
+                //         if(indexFile.posBuckets[j] == indexFile.posBuckets[posIndex]) {
+                //             indexFile.posBuckets[j] = posRelatedBucket;
+                //         }
+                //     }
+                //     relatedBucket->localDepth--;
+                //     writeBucket(relatedBucket, posRelatedBucket);
+                //     updateFileIndex();
+                // }
+
+                return true;
+               }
+        }
+        // si esta en los buckets chaining
+        return removeFromBucket(key, pos, theBucket->nextBucket);
+    }
+
+
+    bool removeFromBucket(string key, int backBucket, int actualBucket) {
+        if(actualBucket == -1) { // no existe
+            return false;
+        }
+
+        Bucket* theBucket = readBucket(actualBucket);
+        Bucket* theBackBucket = readBucket(backBucket);
+
+        int size = theBucket->size;
+        for(int i = 0; i < size; i++) {
+
+            // move the last in bucket
+            if(theBucket->records[i].track_name == key) {
+                Record lastRecord = theBucket->records[size - 1];
+                theBucket->records[i] = lastRecord;
+                theBucket->size--;
+                writeBucket(theBucket, actualBucket);
+                // 2.2 si tiene nextBuckets reemplazar su indice por el del siguiente
+                if(theBucket->size == 0) {
+                    theBackBucket->nextBucket = theBucket->nextBucket;
+                    writeBucket(theBackBucket, backBucket);
+                }
+                delete theBucket;
+                delete theBackBucket;
+                return true;
+            }
+        }
+        int next = theBucket->nextBucket;
+        delete theBucket;
+        delete theBackBucket;
+
+
+        return removeFromBucket(key, actualBucket, next);
+    }
+
+    void printIndex() {
+        for(int i = 0; i < indexFile.size; i++) {
+            cout << i << " : " << indexFile.posBuckets[i] << endl;
+        }
+    }
+
+    vector<Record> search(string key) {
+        int posIndex = posBucket(key, indexFile.globalDepth);
+        int pos = indexFile.posBuckets[posIndex];
+
+        return searchAux(key, pos);
+    }
+    vector<Record> searchAux(string key, int posToSearch) {
+        Bucket* theBucket = readBucket(posToSearch);
+        vector<Record> records;
+
+        for(auto it : theBucket->records) {
+            if(key == it.track_name) {
+                delete theBucket;
+                records.push_back(it);
+                return records;
+            }
+        }
+        int next = theBucket->nextBucket;
+        delete theBucket;
+        if(next == -1) {
+            return records;
+        }
+
+
+        return searchAux(key, next);
+    }
     void insertRecord(Record record) {
 
+        string trackName (record.track_name);
         // Buscar el bucket y:
-        int posIndex = posBucket(record.code, indexFile.globalDepth);
+        int posIndex = posBucket(trackName, indexFile.globalDepth);
+
+
 
         if(posIndex >= pow(2, indexFile.globalDepth)) {
             throw out_of_range("Bucket out of range");
@@ -254,7 +399,6 @@ public:
             theBucket->records[theBucket->size] = record;
             theBucket->size = theBucket->size + 1;
             writeBucket(theBucket, pos);
-            cout << "Insertando1: " << record.code << "  " << pos <<endl;
         }
         // 2. Si esta lleno:
         // 2.1 Si su local depth es menor  al global depth
@@ -266,7 +410,7 @@ public:
             if(theBucket->localDepth < indexFile.globalDepth) {
                 splitOnlyBucket(theBucket, pos);
                 insertRecord(record);
-                cout << "spliting " << record.code << " " << pos << endl;
+
             } else if(theBucket->localDepth == indexFile.globalDepth) {
                 int posNextBucket = theBucket->nextBucket;
                 int actualPosBucket = pos;
@@ -283,16 +427,15 @@ public:
                     Bucket newNextBucket;
                     newNextBucket.records[0] = record;
                     newNextBucket.size = 1;
+                    newNextBucket.localDepth = actualBucket->localDepth;
                     int newBucketPos = writeBucket(&newNextBucket, -1);
 
                     actualBucket->nextBucket = newBucketPos;
                     writeBucket(actualBucket, actualPosBucket);
-                    cout << "Insertando2: " << record.code << "  " << newBucketPos <<endl;
                 } else{
                     actualBucket->records[actualBucket->size] = record;
                     actualBucket->size = actualBucket->size + 1;
                     writeBucket(actualBucket, actualPosBucket);
-                    cout << "Insertando3: " << record.code << "  " << actualPosBucket <<endl;
                 }
 
             }
@@ -302,27 +445,30 @@ public:
         }
     }
 
-    void printRecords() {
+    vector<Record> getAll() {
+        vector<Record> records;
         set<int> bucketsPos;
-        cout << "Buckets pos: " << endl;
         for(int i = 0; i < indexFile.size; i++) {
             bucketsPos.insert(indexFile.posBuckets[i]);
-            cout << i << " : " << indexFile.posBuckets[i] << endl;
         }
         Bucket bucket;
         for(int i : bucketsPos) {
-            cout << "i: " << i << endl;
             fileData.seekg(i, ios::beg);
             fileData.read((char*)&bucket, sizeof(Bucket));
-            bucket.printBucket();
 
+            for(int j = 0; j < bucket.size; j++) {
+                records.push_back(bucket.records[j]);
+            }
             while(bucket.nextBucket != -1) {
-                cout << "i: " << bucket.nextBucket << endl;
                 fileData.seekg(bucket.nextBucket, ios::beg);
                 fileData.read((char*)&bucket, sizeof(Bucket));
-                bucket.printBucket();
+
+                for(int j = 0; j < bucket.size; j++) {
+                    records.push_back(bucket.records[j]);
+                }
             }
         }
+        return records;
 
     }
     void load_csv(string filecsv) {
@@ -337,9 +483,6 @@ public:
             stringstream ss(line);
             string token;
             Record record;
-
-            getline(ss, token, ';');
-            record.code = stoi(token);
 
             getline(ss, token, ';');
             strncpy(record.track_name, token.c_str(), sizeof(record.track_name));
