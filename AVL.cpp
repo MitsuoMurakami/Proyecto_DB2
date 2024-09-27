@@ -4,7 +4,9 @@
 #include <fstream>
 #include <sstream>
 #include <regex>
-
+#include <chrono>
+int read_accesses = 0;
+int write_accesses = 0;
 struct Record {
     char track_name[50];
     char artist_name[50];
@@ -80,8 +82,11 @@ private:
     }
 
     AVLNode* insert(AVLNode* node, const Record& record) {
-        if (!node) return new AVLNode(record);
-
+        if (!node) {
+            write_accesses++;
+            return new AVLNode(record);
+        }
+        read_accesses++;
         if (strcmp(record.track_name, node->record.track_name) < 0)
             node->left = insert(node->left, record);
         else if (strcmp(record.track_name, node->record.track_name) > 0)
@@ -105,7 +110,7 @@ private:
             node->right = rightRotate(node->right);
             return leftRotate(node);
         }
-
+        write_accesses++;
         return node;
     }
 
@@ -170,7 +175,11 @@ private:
     }
 
     AVLNode* search(AVLNode* node, const char* track_name) {
-        if (!node || strcmp(node->record.track_name, track_name) == 0)
+        if (!node) return nullptr;
+
+        read_accesses++;  // Acceso de lectura
+
+        if (strcmp(node->record.track_name, track_name) == 0)
             return node;
 
         if (strcmp(track_name, node->record.track_name) < 0)
@@ -199,13 +208,30 @@ public:
     }
 };
 
+void measureInsertionTime(AVLTree& tree, const Record& record) {
+    auto start = std::chrono::high_resolution_clock::now();
+    tree.insert(record);
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> duration = end - start;
+    std::cout << "Tiempo de insercion: " << duration.count() << " ms" << std::endl;
+}
+
+void measureSearchTime(AVLTree& tree, const char* track_name) {
+    auto start = std::chrono::high_resolution_clock::now();
+    tree.search(track_name);
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> duration = end - start;
+    std::cout << "Tiempo de busqueda: " << duration.count() << " ms" << std::endl;
+}
+
 void executeSQL(AVLTree& tree, const std::string& sql) {
+    //comando que reconoce
     std::regex insert_regex(R"(INSERT INTO songs \((.*?)\) VALUES \((.*?)\);)");
     std::regex select_regex(R"(SELECT \* FROM songs;)");
     std::regex select_specific_regex(R"(SELECT \* FROM songs WHERE track_name = '(.*?)';)");
     std::regex delete_regex(R"(DELETE FROM songs WHERE track_name = '(.*?)';)");
     std::smatch match;
-
+    //verifica si la operacion es de insertar
     if (std::regex_match(sql, match, insert_regex)) {
         // Procesar un comando INSERT INTO
         std::string values = match[2];
@@ -234,25 +260,34 @@ void executeSQL(AVLTree& tree, const std::string& sql) {
             column_index++;
         }
         tree.insert(record);
+        //measureInsertionTime(tree, record);//contar la cantidad de tiempo en que se demora en insertar
+        //std::cout << "Accesos de lectura después de insercion: " << read_accesses << std::endl;
+        //std::cout << "Accesos de escritura después de insercion: " << write_accesses << std::endl;
         std::cout << "Registro insertado.\n";
+    //para seleccionar todos los registros del archivo
     } else if (std::regex_match(sql, match, select_regex)) {
         // Procesar un comando SELECT *
         std::cout << "Registros:\n";
         tree.print();
+    //busqueda de un solo registro
     } else if (std::regex_match(sql, match, select_specific_regex)) {
         // Procesar un comando SELECT específico
         std::string track_name = match[1];
         AVLNode* node = tree.search(track_name.c_str());
+        //std::cout << "Accesos de lectura durante busqueda: " << read_accesses << std::endl;
+        //measureSearchTime(tree,track_name.c_str());
         if (node) {
             node->record.printRecord();
         } else {
             std::cout << "Registro no encontrado.\n";
         }
+    //eliminar un registro
     } else if (std::regex_match(sql, match, delete_regex)) {
         // Procesar un comando DELETE
         std::string track_name = match[1];
         tree.remove(track_name.c_str());
         std::cout << "Registro eliminado.\n";
+    //comando que no se reconoce
     } else {
         std::cout << "Comando SQL no reconocido.\n";
     }
@@ -317,10 +352,13 @@ void loadRecordsFromCSV(AVLTree& tree, const std::string& filename) {
     SELECT * FROM songs WHERE track_name = 'Positions';
  */
 
+
+
 int main() {
     AVLTree tree;
     loadRecordsFromCSV(tree, "data.csv");
-
+    //read_accesses=0;
+    //write_accesses=0;
     std::string sql;
     while (true) {
         std::cout << "> ";
