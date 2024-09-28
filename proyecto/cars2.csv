@@ -1,0 +1,49 @@
+car name;price;engine_capacity;cylinder;horse_power;top_speed;seats;brand;country
+Suzuki Jimny 2021 1.5L Automatic;SAR 98,785;1.5;4;102;145;4 Seater;suzuki;ksa
+Honda HR-V 2021 1.8 i-VTEC LX;Orangeburst Metallic;1.8;4;140;190;5 Seater;honda;ksa
+Honda HR-V 2021 1.8 i-VTEC EX;SAR 95,335;1.8;4;140;190;5 Seater;honda;ksa
+Renault Koleos 2021 2.5L LE (4WD);SAR 116,900;2.5;4;170;199;5 Seater;renault;ksa
+Suzuki Jimny 2021 1.5L M/T;SAR 91,885;1.5;4;102;145;4 Seater;suzuki;ksa
+Honda HR-V 2021 1.8 i-VTEC DX;SAR 72,335;1.8;4;140;190;5 Seater;honda;ksa
+GAC GS8 2021 2.0T GL (2WD);SAR 111,515;2;4;198;200;7 Seater;gac;ksa
+GAC GS4 2021 1.5T GE;SAR 73,485;1.5;4;152;180;5 Seater;gac;ksa
+Aston Martin DB11 2021 4.0T V8 Volante;SAR 1,043,477;4;8;503;322;4 Seater;aston-martin;ksa
+GAC GS4 2021 1.5T GS;SAR 64,400;1.5;4;152;180;5 Seater;gac;ksa
+Aston Martin DB11 2021 4.0T V8 Coupe;SAR 963,375;4;8;503;300;4 Seater;aston-martin;ksa
+Toyota Corolla 2021 1.6L XLI Executive;SAR 78,101;1.6;4;121;190;5 Seater;toyota;ksa
+Toyota Corolla 2021 1.6L GLI;SAR 76,527;1.6;4;121;190;5 Seater;toyota;ksa
+Toyota Corolla 2021 1.6L XLI;SAR 74,572;1.6;4;121;190;5 Seater;toyota;ksa
+Toyota Corolla 2021 1.6L XLI Executive Moonroof;SAR 81,631;1.6;4;121;190;5 Seater;toyota;ksa
+Lincoln Aviator 2021 3.0T V6 Reserve;Following;3;6;400;250;7 Seater;lincoln;ksa
+Lincoln Aviator 2021 3.0T V6 Presidential;Following;3;6;400;250;7 Seater;lincoln;ksa
+Toyota Corolla 2021 1.6L GLI Moonroof;SAR 87,551;1.6;4;121;190;5 Seater;toyota;ksa
+Toyota Corolla 2021 2.0L GLI Moonroof;SAR 99,392;2;4;168;200;5 Seater;toyota;ksa
+MG HS 2021 2.0T Comfort;SAR 85,850;2;4;231;210;5 Seater;mg;ksa
+MG HS 2021 2.0T Luxury (AWD);SAR 101,950;2;4;231;210;5 Seater;mg;ksa
+Toyota Corolla 2021 1.8L XLI Executive Hybrid;SAR 89,942;1.8;4;121;190;5 Seater;toyota;ksa
+Toyota Corolla 2021 1.8L GLI Moonroof Hybrid;SAR 98,936;1.8;4;121;190;5 Seater;toyota;ksa
+Toyota Supra 2021 3.0T GR;SAR 239,085;3;6;382;250;2 Seater;toyota;ksa
+Chevrolet Corvette 2021 6.2L 2LT Convertible;SAR 394,300;6.2;8;495;312;2 Seater;chevrolet;ksa
+Chevrolet Corvette 2021 6.2L 3LT Coupe;SAR 382,700;6.2;8;495;312;2 Seater;chevrolet;ksa
+Kia Sportage 2021 2.0L MPI EX (FWD);Clear White;2;4;155;181;5 Seater;kia;ksa
+Ford Transit 2021 3.7L 150XL (Medium Roof);SAR 156,200;3.7;6;275;158;2 Seater;ford;ksa
+Kia Sportage 2021 2.0L MPI LX (FWD);SAR 82,610;2;4;155;181;5 Seater;kia;ksa
+Volvo XC60 2021 2.0T T5 FWD Momentum;SAR 194,750;2;4;254;220;5 Seater;volvo;ksa
+Lamborghini Aventador SVJ 63 Roadster 2021 6.5L V12 (770 HP);TBD;6.5;12;770;350;2 Seater;lamborghini;ksa
+Volvo S60 2021 2.0T T5 Inscription (AWD);SAR 190,000;1.7;4;250;240;5 Seater;volvo;ksa
+Volvo S90 2021 T5 FWD Momentum;TBD;2;4;254;230;5 Seater;volvo;ksa
+Volvo XC60 2021 2.0T T5 AWD R Design;SAR 225,380;2;4;254;220;5 Seater;volvo;ksa
+Nissan Kicks 2021 1.6 S;SAR 60,000;1.6;4;118;180;5 Seater;nissan;ksa
+Ford Escort 2021 1.5L Ambient;SAR 80,300;1.5;3;120;184;5 Seater;ford;ksa
+Volvo XC60 2021 2.0T T6 AWD Inscription;SAR 241,080;2;4;320;230;5 Seater;volvo;ksa
+Nissan GT-R 2021 Track Edition;TBD;3.8;6;600;350;4 Seater;nissan;ksa
+Toyota Rush 2021 1.5L GX;SAR 76,820;1.5;4;103;175;7 Seater;toyota;ksa
+Nissan GT-R 2021 Nismo;TBD;3.8;6;600;350;4 Seater;nissan;ksa
+Changan CS95 2021 2.0T Classic (7-Seater) FWD;SAR 105,685;2;4;233;185;7 Seater;changan;ksa
+Changan CS95 2021 2.0T Royal (7-Seater) AWD;SAR 126,385;2;4;233;190;7 Seater;changan;ksa
+Kia Cerato 2021 1.6L LX;SAR 63,250;1.6;4;128;190;5 Seater;kia;ksa
+Mercedes-Benz G-Class 2021 G63;SAR 691,994;4;8;585;220;5 Seater;mercedes-benz;ksa
+BMW X5 2021 40i xDrive;SAR 427,350;3;6;340;243;5 Seater;bmw;ksa
+Mercedes-Benz G-Class 2021 G500;SAR 502,785;4;8;422;250;5 Seater;mercedes-benz;ksa
+Audi A7 Sportback 2021 55 TFSI quattro (340 HP);SAR 416,900;3;6;340;250;5 Seater;audi;ksa
+BMW 8 Series Coupe 2021 M850i xDrive;SAR 599,500;4.4;8;523;250;4 Seater;bmw;ksa
