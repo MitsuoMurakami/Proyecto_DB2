@@ -102,8 +102,11 @@ public:
         ofstream aux(this->aux_name, ios::in | ios::out | ios::binary);
         if (!aux.is_open()) throw ("No se pudo abrir el archivo");
 
+        int read = 0, write = 0;
+
         aux.seekp(0, ios::end);
         aux.write(reinterpret_cast<char*>(&registro), sizeof(Registro));
+        write++;
 
         this->size_k++; // tamaño actual del espacio auxiliar
         aux.close();
@@ -113,6 +116,9 @@ public:
         if (k < size_k){
             rebuild();
         }
+
+        cout << "lecturas: " << read << endl;
+        cout << "escrituras: " << write << endl;
 
         aux.close();
     }
@@ -126,6 +132,7 @@ public:
         // Calcular el tamaño del archivo principal
         file.seekg(0, ios::end);
         int size = file.tellg() / sizeof(Registro);
+        int read = 0, write = 0;
 
         file.seekg(0, ios::beg);
 
@@ -139,6 +146,7 @@ public:
 
             file.seekg(m * sizeof(Registro), ios::beg);
             file.read((char*)&reg, sizeof(Registro));
+            read++;
 
             if (string(reg.track_name) < key) {
                 l = m + 1;
@@ -149,6 +157,8 @@ public:
             else { // Encontrado
                 file.close();
                 aux.close();
+                cout << "lecturas: " << read << endl;
+                cout << "escrituras: " << write << endl;
                 return reg;
             }
         }
@@ -158,9 +168,12 @@ public:
             Registro reg;
             aux.seekg(i * sizeof(Registro), ios::beg);
             aux.read(reinterpret_cast<char*>(&reg), sizeof(Registro));
+            read++;
             if (std::string(reg.track_name) == key) {
                 file.close();
                 aux.close();
+                cout << "lecturas: " << read << endl;
+                cout << "escrituras: " << write << endl;
                 return reg;
             }
         }
@@ -183,6 +196,8 @@ public:
         file.seekg(0, ios::end);
         int size = file.tellg() / sizeof(Registro);
 
+        int read = 0, write = 0;
+
         // track_name[110]
 
         file.seekg(0, ios::beg);
@@ -197,6 +212,7 @@ public:
 
             file.seekg(m * sizeof(Registro), ios::beg);
             file.read((char*)&reg, sizeof(Registro));
+            read++;
             
             if (reg.track_name < begin) {
                 l = m + 1;
@@ -212,6 +228,7 @@ public:
         // recorrer mientras el codigo sea < end
         file.seekg(m * sizeof(Registro), ios::beg); 
         file.read((char*)&reg, sizeof(Registro)); // leer registro
+        read++;
         while (reg.track_name<=end && m<this->size){
             if (reg.track_name>=begin && reg.track_name<=end){
                 vec.push_back(reg);
@@ -219,6 +236,7 @@ public:
             m++; // incrementar pos
             file.seekg(m * sizeof(Registro), ios::beg);
             file.read((char*)&reg, sizeof(Registro));
+            read++;
         }
         
 
@@ -228,6 +246,7 @@ public:
         for (int i=0; i<size_k; i++){
             aux.seekg(i * sizeof(Registro), ios::beg);
             aux.read((char*)&reg, sizeof(Registro));
+            read++;
             if (reg.track_name>=begin && reg.track_name<=end){
                 vec.push_back(reg);
             }
@@ -237,6 +256,9 @@ public:
 
         file.close();
         aux.close();
+
+        cout << "lecturas: " << read << endl;
+        cout << "escrituras: " << write << endl;
 
         return vec;
     }
@@ -250,6 +272,7 @@ public:
 
         // buscar en el file
         bool b=false;
+        int read = 0, write = 0;
 
         // binarysearch para buscar key
         int l=0;
@@ -261,6 +284,7 @@ public:
 
             file.seekg(m * sizeof(Registro), ios::beg);
             file.read((char*)&reg, sizeof(Registro));
+            read++;
 
             if (string(reg.track_name) < key) {
                 l = m + 1;
@@ -277,10 +301,12 @@ public:
                     // Leer el registro de la posición j
                     file.seekg(j * sizeof(Registro), ios::beg);
                     file.read(reinterpret_cast<char*>(&reg), sizeof(Registro));
+                    read++;
 
                     // Escribir el registro en la posición anterior (j-1)
                     file.seekp((j - 1) * sizeof(Registro), ios::beg);
                     file.write(reinterpret_cast<char*>(&reg), sizeof(Registro));
+                    write++;
 
                     j++;
                 }
@@ -294,15 +320,18 @@ public:
             aux.seekg(0, ios::beg);
             for (int i=0; i<k; i++){
                 aux.read((char*)&reg, sizeof(Registro)); // se puede implementar un buffer para traer la data del espacio auxiliar
+                read++;
                 if (reg.track_name == key){
                     int j = m + 1;
 
                     while (j < this->size) {
                         file.seekg(j * sizeof(Registro), ios::beg);
                         file.read(reinterpret_cast<char*>(&reg), sizeof(Registro));
+                        read++;
 
                         file.seekp((j - 1) * sizeof(Registro), ios::beg);
                         file.write(reinterpret_cast<char*>(&reg), sizeof(Registro));
+                        write++;
 
                         j++;
                     }
@@ -312,6 +341,9 @@ public:
                 }
             }
         }
+
+        cout << "lecturas: " << read << endl;
+        cout << "escrituras: " << write << endl;
         
         file.close();
         aux.close();
@@ -325,11 +357,13 @@ public:
 
         Registro reg, aux_reg, reg2;
         string key;
+        int read = 0, write = 0;
 
         // insertar cada registro de aux a file   
         for (int i=0; i<size_k; i++){
             aux.seekg(i * sizeof(Registro), ios::beg);
             aux.read((char*)&aux_reg, sizeof(Registro));
+            read++;
             // ir a la posición a insertar (binary search)
             file.seekg(0, ios::beg);
 
@@ -342,6 +376,7 @@ public:
 
                 file.seekg(m * sizeof(Registro), ios::beg);
                 file.read(reinterpret_cast<char*>(&reg), sizeof(Registro));
+                read++;
                 if (string(reg.track_name) > string(aux_reg.track_name)) {
                     u = m - 1;
                 }
@@ -358,9 +393,11 @@ public:
             while (j >= l) {
                 file.seekg(j * sizeof(Registro), ios::beg);
                 file.read(reinterpret_cast<char*>(&reg), sizeof(Registro));
+                read++;
 
                 file.seekp((j + 1) * sizeof(Registro), ios::beg);
                 file.write(reinterpret_cast<char*>(&reg), sizeof(Registro));
+                write++;
 
                 j--;
             }
@@ -368,10 +405,14 @@ public:
             // insertar el registro
             file.seekp(l * sizeof(Registro), ios::beg);
             file.write(reinterpret_cast<char*>(&aux_reg), sizeof(Registro));
+            write++;
 
             
             this->size++;
         }
+
+        cout << "lecturas: " << read << endl;
+        cout << "escrituras: " << write << endl;
 
         
         this->size_k = 0;
@@ -467,23 +508,6 @@ vector<Registro> leerCSV(const string& filename) {
     return records;
 }
 
-
-void measureInsertionTime(SequentialFile& seq, const Registro& record) {
-    auto start = std::chrono::high_resolution_clock::now();
-    seq.add(record);
-    auto end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double, std::milli> duration = end - start;
-    std::cout << "Tiempo de insercion: " << duration.count() << " ms" << std::endl;
-}
-
-void measureSearchTime(SequentialFile& seq, const char* track_name) {
-    auto start = std::chrono::high_resolution_clock::now();
-    seq.search(track_name);
-    auto end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double, std::milli> duration = end - start;
-    std::cout << "Tiempo de busqueda: " << duration.count() << " ms" << std::endl;
-}
-
 void executeSQL(SequentialFile& seq, const std::string& sql) {
     //comando que reconoce
     std::regex insert_regex(R"(INSERT INTO songs \((.*?)\) VALUES \((.*?)\);)");
@@ -520,9 +544,6 @@ void executeSQL(SequentialFile& seq, const std::string& sql) {
             column_index++;
         }
         seq.add(record);
-        //measureInsertionTime(seq, record);//contar la cantidad de tiempo en que se demora en insertar
-        //std::cout << "Accesos de lectura después de insercion: " << read_accesses << std::endl;
-        //std::cout << "Accesos de escritura después de insercion: " << write_accesses << std::endl;
         std::cout << "Registro insertado.\n";
     //para seleccionar todos los registros del archivo
     } else if (std::regex_match(sql, match, select_regex)) {
@@ -539,14 +560,7 @@ void executeSQL(SequentialFile& seq, const std::string& sql) {
         std::string track_name = match[1];
         Registro record;
         record = seq.search(track_name);
-        //std::cout << "Accesos de lectura durante busqueda: " << read_accesses << std::endl;
-        //measureSearchTime(seq,track_name.c_str());
         record.showData();
-        // if (node) {
-        //     node->record.printRecord();
-        // } else {
-        //     std::cout << "Registro no encontrado.\n";
-        // }
     //eliminar un registro
     } else if (std::regex_match(sql, match, delete_regex)) {
         // Procesar un comando DELETE
@@ -559,17 +573,15 @@ void executeSQL(SequentialFile& seq, const std::string& sql) {
     }
 }
 
-
 int main(){
     SequentialFile seq("data.dat", "aux.dat");
     Registro reg;
     vector<Registro> vec;
 
-    // seq.insertALL(leerCSV("data_songs.csv"));
-    seq.insertALL(leerCSV("data2.csv"));
-    // reg = seq.search("LALA");
-
-    std::string sql;
+    seq.insertALL(leerCSV("data_songs.csv"));
+   
+   
+   std::string sql;
     while (true) {
         std::cout << "> ";
         std::getline(std::cin, sql);
@@ -578,75 +590,6 @@ int main(){
         }
         executeSQL(seq, sql);
     }
-
-    // cout << reg.track_name << endl << endl;
-
-    // cout << "range: " << endl;
-    // vec = seq.rangeSearch("LALA", "WHERE SHE GOES");
-
-    // for (Registro i: vec){
-    //     cout << i.track_name << endl;
-    // }
-
-    // cout << endl;
-    // cout << endl << "range2: " << endl;
-    // vec.clear();
-    // vec = seq.rangeSearch("A", "zzzzzzz");
-
-    // for (Registro i: vec){
-    //     cout << i.track_name << endl;
-    // }
-
-    // cout << endl;
-    // string name;
-    // name = "A";
-    // strncpy(reg.track_name, name.c_str(), sizeof(reg.track_name));
-    // seq.add(reg);
-
-    // cout << endl;
-    // cout << endl << "range3: " << endl;
-    // vec.clear();
-    // vec = seq.rangeSearch("A", "zzzzzzz");
-    
-    // for (Registro i: vec){
-    //     cout << i.track_name << endl;
-    // }
-    
-    // search A
-    // cout << endl;
-    // cout << "search : " << endl;
-    // reg = seq.search("A");
-    // cout << reg.track_name << endl;
-
-    // name = "B";
-    // strncpy(reg.track_name, name.c_str(), sizeof(reg.track_name));
-    // seq.add(reg);
-
-    // name = "C";
-    // strncpy(reg.track_name, name.c_str(), sizeof(reg.track_name));
-    // seq.add(reg);
-    
-    // name = "MITSUO";
-    // strncpy(reg.track_name, name.c_str(), sizeof(reg.track_name));
-    // seq.add(reg);
-
-    // name = "zzz";
-    // strncpy(reg.track_name, name.c_str(), sizeof(reg.track_name));
-    // seq.add(reg);
-
-
-    // cout << endl;
-    // cout << endl << "-------------------------------------------------------------------------------- " << endl;
-    // vec.clear();
-    // vec = seq.rangeSearch("A", "zzzzzzzzzz");
-    
-    // for (Registro i: vec){
-    //     cout << i.track_name << endl;
-    // }
-
-    // seq.eliminar("zzz");
-    // vec = seq.rangeSearch("A", "zzzzzzzzzz");
-    
 }
 
 

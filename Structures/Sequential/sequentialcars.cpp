@@ -452,6 +452,71 @@ vector<Registro> leerCSV(const string& filename) {
     return records;
 }
 
+void executeSQL(SequentialFile& seq, const std::string& sql) {
+    //comando que reconoce
+    std::regex insert_regex(R"(INSERT INTO songs \((.*?)\) VALUES \((.*?)\);)");
+    std::regex select_regex(R"(SELECT \* FROM songs;)");
+    std::regex select_specific_regex(R"(SELECT \* FROM songs WHERE track_name = '(.*?)';)");
+    std::regex delete_regex(R"(DELETE FROM songs WHERE track_name = '(.*?)';)");
+    std::smatch match;
+    //verifica si la operacion es de insertar
+    if (std::regex_match(sql, match, insert_regex)) {
+        // Procesar un comando INSERT INTO
+        std::string values = match[2];
+        std::istringstream val_stream(values);
+        std::string val_name;
+
+        // Crear un nuevo registro basado en el comando SQL
+        Registro record;
+        int column_index = 0;
+
+        while (std::getline(val_stream, val_name, ',')) {
+            val_name.erase(remove(val_name.begin(), val_name.end(), '\''), val_name.end());
+            switch (column_index) {
+                case 0: strncpy(record.track_name, val_name.c_str(), sizeof(record.track_name) - 1); break;
+                case 1: strncpy(record.artists_name, val_name.c_str(), sizeof(record.artists_name) - 1); break;
+                case 2: record.artist_count = std::stoi(val_name); break;
+                case 3: record.year = std::stoi(val_name); break;
+                case 4: record.month = std::stoi(val_name); break;
+                case 5: record.in_spotify_playlist = std::stol(val_name); break;
+                case 6: record.streams = std::stoll(val_name); break;
+                case 7: strncpy(record.key, val_name.c_str(), sizeof(record.key) - 1); break;
+                case 8: strncpy(record.mode, val_name.c_str(), sizeof(record.mode) - 1); break;
+                case 9: record.danceability = std::stoi(val_name); break;
+                case 10: strncpy(record.cover_url, val_name.c_str(), sizeof(record.cover_url) - 1); break;
+            }
+            column_index++;
+        }
+        seq.add(record);
+        std::cout << "Registro insertado.\n";
+    //para seleccionar todos los registros del archivo
+    } else if (std::regex_match(sql, match, select_regex)) {
+        // Procesar un comando SELECT *
+        std::cout << "Registros:\n";
+        vector<Registro> registros;
+        registros = seq.rangeSearch("A", "zzzzzzzzzzzzzzzzzzzz");
+        for (Registro i: registros){
+            i.showData();
+        }
+    //busqueda de un solo registro
+    } else if (std::regex_match(sql, match, select_specific_regex)) {
+        // Procesar un comando SELECT específico
+        std::string track_name = match[1];
+        Registro record;
+        record = seq.search(track_name);
+        record.showData();
+    //eliminar un registro
+    } else if (std::regex_match(sql, match, delete_regex)) {
+        // Procesar un comando DELETE
+        std::string track_name = match[1];
+        seq.eliminar(track_name.c_str());
+        std::cout << "Registro eliminado.\n";
+    //comando que no se reconoce
+    } else {
+        std::cout << "Comando SQL no reconocido.\n";
+    }
+}
+
 
 int main(){
     SequentialFile seq("data_car.dat", "aux_car.dat");
@@ -459,84 +524,17 @@ int main(){
     vector<Registro> vec;
 
     seq.insertALL(leerCSV("data_cars.csv"));
-    // reg = seq.search("Suzuki Jimny 2021 1.5L Automatic");
 
-    // cout << reg.car_name << endl;
-
-    // vec = seq.rangeSearch("A", "zzzzzzzz");
-    // for (auto i: vec){
-    //     cout << i.car_name << endl;
-    // }
-
-
-
-
-
-
-
-    // cout << reg.car_name << endl << endl;
-
-    // cout << "range: " << endl;
-    // vec = seq.rangeSearch("LALA", "WHERE SHE GOES");
-
-    // for (Registro i: vec){
-    //     cout << i.car_name << endl;
-    // }
-
-    // cout << endl;
-    // cout << endl << "range2: " << endl;
-    // vec.clear();
-    // vec = seq.rangeSearch("A", "zzzzzzz");
-
-    // for (Registro i: vec){
-    //     cout << i.car_name << endl;
-    // }
-
-    // cout << endl;
-    // string name;
-    // name = "A";
-    // strncpy(reg.car_name, name.c_str(), sizeof(reg.car_name));
-    // seq.add(reg);
-
-    // cout << endl;
-    // cout << endl << "range3: " << endl;
-    // vec.clear();
-    // vec = seq.rangeSearch("A", "zzzzzzz");
+    std::string sql;
+    while (true) {
+        std::cout << "> ";
+        std::getline(std::cin, sql);
+        if (sql == "exit") {
+            break;
+        }
+        executeSQL(seq, sql);
+    }
     
-    // for (Registro i: vec){
-    //     cout << i.car_name << endl;
-    // }
-    
-    // search A
-    // cout << endl;
-    // cout << "search : " << endl;
-    // reg = seq.search("A");
-    // cout << reg.car_name << endl;
-
-    // name = "B";
-    // strncpy(reg.car_name, name.c_str(), sizeof(reg.car_name));
-    // seq.add(reg);
-
-    // name = "C";
-    // strncpy(reg.car_name, name.c_str(), sizeof(reg.car_name));
-    // seq.add(reg);
-    
-    // name = "MITSUO";
-    // strncpy(reg.car_name, name.c_str(), sizeof(reg.car_name));
-    // seq.add(reg);
-
-    // name = "zzz";
-    // strncpy(reg.car_name, name.c_str(), sizeof(reg.car_name));
-    // seq.add(reg);
-
-
-    // cout << endl;
-    // vec.clear();
-    // vec = seq.rangeSearch("A", "zzzzzzzzzz");
-    
-    // for (Registro i: vec){
-    //     cout << i.car_name << endl;
-    // }
 }
 
 
