@@ -21,16 +21,16 @@ struct Registro{
     char country[7];
     
 
-    void showData() {
-        cout << "\nCar name: " << car_name;
-        cout << "\nprice: " << price;
-        cout << "\nengine capacity: " << engine_capacity;
-        cout << "\ncylinder: " << cylinder;
-        cout << "\nHP: " << HP;
-        cout << "\ntop speed: " << top_speed;
-        cout << "\nsears: " << seats;
-        cout << "\nbrand: " << brand;
-        cout << "\ncountry: " << country;
+    void showData() const {
+        std::cout << "Car: " << car_name 
+                << ", price: " << price
+                << ", engine capacity: " << engine_capacity
+                << ", cylinder: " << cylinder
+                << ", HP: " << HP
+                << ", top speed: " << top_speed
+                << ", seats: " << seats
+                << ", brand: " << brand
+                << ", country: " << country << std::endl;
     }
 };
 
@@ -453,13 +453,15 @@ vector<Registro> leerCSV(const string& filename) {
 }
 
 void executeSQL(SequentialFile& seq, const std::string& sql) {
-    //comando que reconoce
-    std::regex insert_regex(R"(INSERT INTO songs \((.*?)\) VALUES \((.*?)\);)");
-    std::regex select_regex(R"(SELECT \* FROM songs;)");
-    std::regex select_specific_regex(R"(SELECT \* FROM songs WHERE track_name = '(.*?)';)");
-    std::regex delete_regex(R"(DELETE FROM songs WHERE track_name = '(.*?)';)");
+    // Expresiones regulares para las consultas
+    std::regex insert_regex(R"(INSERT INTO cars \((.*?)\) VALUES \((.*?)\);)");
+    std::regex select_regex(R"(SELECT \* FROM cars;)");
+    std::regex select_specific_regex(R"(SELECT \* FROM cars WHERE car_name = '(.*?)';)");
+    std::regex select_range_regex(R"(SELECT \* FROM cars WHERE car_name BETWEEN '(.*?)' AND '(.*?)';)");
+    std::regex delete_regex(R"(DELETE FROM cars WHERE car_name = '(.*?)';)");
     std::smatch match;
-    //verifica si la operacion es de insertar
+
+    // Verifica si la operación es de insertar
     if (std::regex_match(sql, match, insert_regex)) {
         // Procesar un comando INSERT INTO
         std::string values = match[2];
@@ -473,45 +475,63 @@ void executeSQL(SequentialFile& seq, const std::string& sql) {
         while (std::getline(val_stream, val_name, ',')) {
             val_name.erase(remove(val_name.begin(), val_name.end(), '\''), val_name.end());
             switch (column_index) {
-                case 0: strncpy(record.track_name, val_name.c_str(), sizeof(record.track_name) - 1); break;
-                case 1: strncpy(record.artists_name, val_name.c_str(), sizeof(record.artists_name) - 1); break;
-                case 2: record.artist_count = std::stoi(val_name); break;
-                case 3: record.year = std::stoi(val_name); break;
-                case 4: record.month = std::stoi(val_name); break;
-                case 5: record.in_spotify_playlist = std::stol(val_name); break;
-                case 6: record.streams = std::stoll(val_name); break;
-                case 7: strncpy(record.key, val_name.c_str(), sizeof(record.key) - 1); break;
-                case 8: strncpy(record.mode, val_name.c_str(), sizeof(record.mode) - 1); break;
-                case 9: record.danceability = std::stoi(val_name); break;
-                case 10: strncpy(record.cover_url, val_name.c_str(), sizeof(record.cover_url) - 1); break;
+                case 0: strncpy(record.car_name, val_name.c_str(), sizeof(record.car_name) - 1); break;
+                case 1: strncpy(record.price, val_name.c_str(), sizeof(record.price)-1); break;
+                case 2: record.engine_capacity = std::stol(val_name); break;
+                case 3: record.cylinder = std::stoi(val_name); break;
+                case 4: record.HP = std::stoi(val_name); break;
+                case 5: record.top_speed = std::stoi(val_name); break;
+                case 6: strncpy(record.seats, val_name.c_str(), sizeof(record.seats) - 1); break;
+                case 7: strncpy(record.brand, val_name.c_str(), sizeof(record.brand) - 1); break;
+                case 8: strncpy(record.country, val_name.c_str(), sizeof(record.country) - 1); break;
             }
             column_index++;
         }
         seq.add(record);
         std::cout << "Registro insertado.\n";
-    //para seleccionar todos los registros del archivo
+
+    // Para seleccionar todos los registros del archivo
     } else if (std::regex_match(sql, match, select_regex)) {
-        // Procesar un comando SELECT *
         std::cout << "Registros:\n";
-        vector<Registro> registros;
+        std::vector<Registro> registros;
         registros = seq.rangeSearch("A", "zzzzzzzzzzzzzzzzzzzz");
-        for (Registro i: registros){
+        for (Registro i : registros) {
             i.showData();
         }
-    //busqueda de un solo registro
+
+    // Para búsqueda de un solo registro
     } else if (std::regex_match(sql, match, select_specific_regex)) {
-        // Procesar un comando SELECT específico
         std::string track_name = match[1];
-        Registro record;
-        record = seq.search(track_name);
+        Registro record = seq.search(track_name);
         record.showData();
-    //eliminar un registro
+
+    // Para eliminar un registro
     } else if (std::regex_match(sql, match, delete_regex)) {
-        // Procesar un comando DELETE
         std::string track_name = match[1];
         seq.eliminar(track_name.c_str());
         std::cout << "Registro eliminado.\n";
-    //comando que no se reconoce
+
+    // Para búsqueda por rango
+    } else if (std::regex_match(sql, match, select_range_regex)) {
+        std::string start_value = match[1];  // Valor inicial del rango
+        std::string end_value = match[2];    // Valor final del rango
+
+        // Comprobar que los valores capturados son correctos
+        std::cout << "Start value: " << start_value << "\n";
+        std::cout << "End value: " << end_value << "\n";
+
+        // Ejecutar búsqueda por rango
+        std::vector<Registro> registros = seq.rangeSearch(start_value, end_value);
+
+        // Mostrar los resultados
+        std::cout << "Registros encontrados en el rango de '" << start_value << "' a '" << end_value << "':\n";
+        for (Registro record : registros) {
+            record.showData();
+        }
+
+        if (registros.empty()) {
+            std::cout << "No se encontraron registros en el rango especificado.\n";
+        }
     } else {
         std::cout << "Comando SQL no reconocido.\n";
     }
@@ -534,7 +554,13 @@ int main(){
         }
         executeSQL(seq, sql);
     }
-    
 }
 
+
+// SELECT * FROM cars;
+// SELECT * FROM cars WHERE car_name = 'Audi Q8 2021 55 TFSI quattro (340 HP)';
+// SELECT * FROM cars WHERE car_name BETWEEN 'Mercedes-Benz G-Class 2021 G63' AND 'Porsche Panamera Sport Turismo 2021 GTS';
+// INSERT INTO cars (car_name, price, engine_capacity, cylinder, HP, top_speed, seats, brand, country) VALUES ('Mazda 6 2024', '35000', '2500', '4', '235', '220', '5 Seater', 'Mazda', 'Japan');
+// SELECT * FROM cars WHERE car_name = 'Mazda 6 2024';
+// DELETE FROM cars WHERE car_name = 'Mazda 6 2024';
 
