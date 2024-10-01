@@ -5,14 +5,12 @@
 
 #include <regex>
 #include "extensible.h"
-#include "avl.h"
 
 
 class Parser {
     string currentTableName;
     string typeIndex;
     ExtendibleHashing* extendibleHashing;
-    AVLTree* avlTree;
 
 
 public:
@@ -42,12 +40,7 @@ public:
         if (typeIndex == "EXT") {
             extendibleHashing = new ExtendibleHashing("dataRecord.dat", "dataIndex.dat");
             extendibleHashing->load_csv(file_path);
-        } else if (index_type == "AVL") {
-            loadRecordsFromCSV(*avlTree, file_path);
         }
-        // else if (index_type == "SEQUENTIAL") {
-        //     seqFile.load_csv(file_path);
-        // }
         cout << "Tabla creada con el índice " << typeIndex << " desde el archivo: " << file_path << "\n";
 
     } else if (regex_match(sql, match, insert_regex)) { //verifica si la operacion es de insertar
@@ -78,16 +71,12 @@ public:
             }
             column_index++;
         }
+        record.printRecord();
 
         if (table_name == currentTableName) {
             if(typeIndex == "EXT") {
                 extendibleHashing->insertRecord(record);
-            } else if(typeIndex == "AVL") {
-                avlTree->insert(record);
             }
-
-            // avlTree.insert(record);
-            // seqFile.insert(record);
         }
         cout << "Registro insertado en " << table_name << endl;
 
@@ -100,19 +89,16 @@ public:
         if (typeIndex == "EXT") {
             result = extendibleHashing->search(key);
             if (result.size() > 0) {
+                std::cout << "Track name" << " | " << "Artist name" << " | " << "Artist count" << " | " << "Released year" << " | " <<
+                "Released month"
+                << " | " << "Playlists" << " | " << "Streams" << " | " << "Key" << " | " << "Mode" << " | " << "Danceability" << " | " <<
+                "Url" << std::endl;
                 for (int i = 0; i < result.size(); i++) {
                     result[i].printRecord();
                     cout << endl;
                 }
             } else {
                 cout << "Registro no encontrado" << endl;
-            }
-        } else if (typeIndex == "AVL") {
-            auto node = avlTree->search(key.c_str());
-            if (node) {
-                node->record.printRecord();
-            } else {
-                std::cout << "Registro no encontrado.\n";
             }
         }
 
@@ -132,11 +118,7 @@ public:
             } else {
                 cout << "Registro no encontrado" << endl;
             }
-        } else if (typeIndex == "AVL") {
-            avlTree->remove(key.c_str());
-            cout << "Registro eliminado de " << table_name << endl;
         }
-
 
     } else if (regex_match(sql, match, select_range_regex)) {
         //SELECT con rango
@@ -146,16 +128,27 @@ public:
 
         if (typeIndex == "EXT") {
             cout << "Operacion no esta permitida" << endl;
-        } else if (typeIndex == "AVL") {
-            avlTree->rangeSearch(key_start.c_str(), key_end.c_str());
+        }
+    } else if(regex_match(sql, match, select_all_regex)) {
+        string table_name = match[1];
+        vector<Record> result;
+        result = extendibleHashing->getAll();
+        if (result.size() > 0) {
+            std::cout << "Track name" << " | " << "Artist name" << " | " << "Artist count" << " | " << "Released year" << " | " <<
+                "Released month"
+                << " | " << "Playlists" << " | " << "Streams" << " | " << "Key" << " | " << "Mode" << " | " << "Danceability" << " | " <<
+                "Url" << std::endl;
+            for (int i = 0; i < result.size(); i++) {
+                result[i].printRecord();
+                cout << endl;
+            }
+        } else {
+            cout << "Tabla vacia" << endl;
         }
 
+    } else {
+        cout << "Comando SQL no reconocido.\n";
     }
-    //     else if() {
-    //
-    // } else {
-    //     std::cout << "Comando SQL no reconocido.\n";
-    // }
 }
 };
 

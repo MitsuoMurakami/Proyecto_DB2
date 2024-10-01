@@ -28,16 +28,13 @@ struct Record {
     char country[10];
 
     void printRecord() const {
-        std::cout << "Nombre: " << track_name
-                  << ", Precio: " << price
-                  << ", Capacidad del motor: " << engine_capacity << "L"
-                  << ", Cilindros: " << cylinder
-                  << ", Potencia: " << horse_power << " HP"
-                  << ", Velocidad máxima: " << top_speed << " km/h"
-                  << ", Asientos: " << seats
-                  << ", Marca: " << brand
-                  << ", Country: " << country << std::endl;
+        std::cout << track_name << " | " << price << " | " << engine_capacity << " | " << cylinder << " | " <<
+                horse_power
+                << " | " << top_speed << " | " << seats << " | " << brand << " | " << country << std::endl;
+
+
     }
+
 };
 
 #define MAX_RECORDS 3
@@ -408,10 +405,10 @@ public:
         Bucket* theBucket = readBucket(posToSearch);
         vector<Record> records;
 
-        for(auto it : theBucket->records) {
-            if(key == it.track_name) {
+        for(int i = 0; i < theBucket->size; i++) {
+            if(key == theBucket->records[i].track_name) {
                 delete theBucket;
-                records.push_back(it);
+                records.push_back(theBucket->records[i]);
                 return records;
             }
         }
@@ -568,7 +565,19 @@ public:
 
 
 };
-void executeSQL(string sql) {
+
+class Parser {
+    string currentTableName;
+    string typeIndex;
+    ExtendibleHashing* extendibleHashing;
+
+
+public:
+    Parser() {
+        currentTableName = "";
+        typeIndex = "";
+    }
+    void executeSQL(string sql) {
     //comando que reconocev
     regex create_table_regex(R"(CREATE TABLE (.*?) FROM FILE (.*?) USING INDEX (.*?);)");
     regex insert_regex(R"(INSERT INTO (.*?) VALUES \((.*?)\);)");
@@ -578,8 +587,6 @@ void executeSQL(string sql) {
     regex delete_regex(R"(DELETE FROM (.*?) WHERE key = (.*?);)");
 
     smatch match;
-    string typeIndex = "";
-    ExtendibleHashing* extendibleHashing = nullptr;
     //verifica si la operacion es de crear
     if (regex_match(sql, match, create_table_regex)) {
         // Procesar el comando CREATE TABLE
@@ -587,8 +594,8 @@ void executeSQL(string sql) {
         string file_path = match[2];
         string index_type = match[3];
 
-        typeIndex = index_type;
-
+        this->typeIndex = index_type;
+        currentTableName = table_name;
         if (typeIndex == "EXT") {
             extendibleHashing = new ExtendibleHashing("dataRecordC.dat", "dataIndexC.dat");
             extendibleHashing->load_csv(file_path);
@@ -621,13 +628,13 @@ void executeSQL(string sql) {
             }
             column_index++;
         }
+        record.printRecord();
 
-
-        if(typeIndex == "EXT") {
-            extendibleHashing->insertRecord(record);
+        if (table_name == currentTableName) {
+            if(typeIndex == "EXT") {
+                extendibleHashing->insertRecord(record);
+            }
         }
-
-
         cout << "Registro insertado en " << table_name << endl;
 
     } else if (regex_match(sql, match, select_regex)) {
@@ -639,6 +646,10 @@ void executeSQL(string sql) {
         if (typeIndex == "EXT") {
             result = extendibleHashing->search(key);
             if (result.size() > 0) {
+                std::cout << "Nombre" << " | " << "Precio" << " | " << "Capacidad del motor" << " | " << "Cilindros" << " | " <<
+                "Potencia"
+                << " | " << "Velocidad maxima" << " | " << "Asientos" << " | " << "Marca" << " | " << "Country" << std::endl;
+
                 for (int i = 0; i < result.size(); i++) {
                     result[i].printRecord();
                     cout << endl;
@@ -647,6 +658,7 @@ void executeSQL(string sql) {
                 cout << "Registro no encontrado" << endl;
             }
         }
+
 
 
     } else if (std::regex_match(sql, match, delete_regex)) {
@@ -674,13 +686,28 @@ void executeSQL(string sql) {
         if (typeIndex == "EXT") {
             cout << "Operacion no esta permitida" << endl;
         }
+    } else if(regex_match(sql, match, select_all_regex)) {
+        string table_name = match[1];
+        vector<Record> result;
+        result = extendibleHashing->getAll();
+        if (result.size() > 0) {
+            std::cout << "Nombre" << " | " << "Precio" << " | " << "Capacidad del motor" << " | " << "Cilindros" << " | " <<
+                "Potencia"
+                << " | " << "Velocidad maxima" << " | " << "Asientos" << " | " << "Marca" << " | " << "Country" << std::endl;
 
-    }
-    //     else if() {
-    //
-    else {
-        std::cout << "Comando SQL no reconocido.\n";
+            for (int i = 0; i < result.size(); i++) {
+                result[i].printRecord();
+                cout << endl;
+            }
+        } else {
+            cout << "Tabla vacia" << endl;
+        }
+
+    } else {
+        cout << "Comando SQL no reconocido.\n";
     }
 }
+};
+
 
 #endif //EXTENSIBLECARS_H

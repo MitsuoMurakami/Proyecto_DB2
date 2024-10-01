@@ -18,6 +18,7 @@
 #include <set>
 #include <string.h>
 #include "record.h"
+#include <chrono>
 
 using namespace std;
 
@@ -80,7 +81,6 @@ private:
     IndexFile indexFile;
 
     Bucket* readBucket(int posBucket) {
-        // TODO verificar si lee todos los record del Bucket
         if(posBucket == -1) {
             return nullptr;
         }
@@ -262,6 +262,62 @@ public:
         }
 
     }
+    void measureTimes() {
+        auto start = chrono::high_resolution_clock::now();
+        auto result = search("HEARTBREAK ANNIVERSARY");
+        auto end = chrono::high_resolution_clock::now();
+        chrono::duration<double, std::milli> duration = end - start;
+        cout << "Tiempo de busqueda: " << duration.count() << " ms" << std::endl;
+
+        start = chrono::high_resolution_clock::now();
+        remove("Positions");
+        end = std::chrono::high_resolution_clock::now();
+        duration = end - start;
+        cout << "Tiempo de eliminación: " << duration.count() << " ms" << std::endl;
+
+
+        start = chrono::high_resolution_clock::now();
+        insertRecord(result[0]);
+        end = std::chrono::high_resolution_clock::now();
+        duration = end - start;
+        cout << "Tiempo de insercion: " << duration.count() << " ms" << std::endl;
+    }
+
+    bool removeFromBucket(string key, int backBucket, int actualBucket) {
+        if(actualBucket == -1) { // no existe
+            return false;
+        }
+
+        Bucket* theBucket = readBucket(actualBucket);
+        Bucket* theBackBucket = readBucket(backBucket);
+
+        int size = theBucket->size;
+        for(int i = 0; i < size; i++) {
+
+            // move the last in bucket
+            if(theBucket->records[i].track_name == key) {
+                Record lastRecord = theBucket->records[size - 1];
+                theBucket->records[i] = lastRecord;
+                theBucket->size--;
+                writeBucket(theBucket, actualBucket);
+                // 2.2 si tiene nextBuckets reemplazar su indice por el del siguiente
+                if(theBucket->size == 0) {
+                    theBackBucket->nextBucket = theBucket->nextBucket;
+                    writeBucket(theBackBucket, backBucket);
+                }
+                delete theBucket;
+                delete theBackBucket;
+                return true;
+            }
+        }
+        int next = theBucket->nextBucket;
+        delete theBucket;
+        delete theBackBucket;
+
+
+        return removeFromBucket(key, actualBucket, next);
+    }
+
     bool remove(string key) {
 
 
@@ -311,42 +367,6 @@ public:
         return removeFromBucket(key, pos, theBucket->nextBucket);
     }
 
-
-    bool removeFromBucket(string key, int backBucket, int actualBucket) {
-        if(actualBucket == -1) { // no existe
-            return false;
-        }
-
-        Bucket* theBucket = readBucket(actualBucket);
-        Bucket* theBackBucket = readBucket(backBucket);
-
-        int size = theBucket->size;
-        for(int i = 0; i < size; i++) {
-
-            // move the last in bucket
-            if(theBucket->records[i].track_name == key) {
-                Record lastRecord = theBucket->records[size - 1];
-                theBucket->records[i] = lastRecord;
-                theBucket->size--;
-                writeBucket(theBucket, actualBucket);
-                // 2.2 si tiene nextBuckets reemplazar su indice por el del siguiente
-                if(theBucket->size == 0) {
-                    theBackBucket->nextBucket = theBucket->nextBucket;
-                    writeBucket(theBackBucket, backBucket);
-                }
-                delete theBucket;
-                delete theBackBucket;
-                return true;
-            }
-        }
-        int next = theBucket->nextBucket;
-        delete theBucket;
-        delete theBackBucket;
-
-
-        return removeFromBucket(key, actualBucket, next);
-    }
-
     void printIndex() {
         for(int i = 0; i < indexFile.size; i++) {
             cout << i << " : " << indexFile.posBuckets[i] << endl;
@@ -363,10 +383,10 @@ public:
         Bucket* theBucket = readBucket(posToSearch);
         vector<Record> records;
 
-        for(auto it : theBucket->records) {
-            if(key == it.track_name) {
+        for(int i = 0; i < theBucket->size; i++) {
+            if(key == theBucket->records[i].track_name) {
                 delete theBucket;
-                records.push_back(it);
+                records.push_back(theBucket->records[i]);
                 return records;
             }
         }

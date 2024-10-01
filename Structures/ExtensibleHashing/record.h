@@ -7,8 +7,8 @@
 #include <iostream>
 
 struct Record {
-    int code;
-    char track_name[50];
+
+    char track_name[100];
     char artist_name[50];
     int artist_count;
     int released_year;
@@ -20,8 +20,12 @@ struct Record {
     int danceability;
     char url[100];
     void printRecord() {
-        std::cout << code << " " << track_name << " " << artist_name << " " << artist_count << std::endl;
+        std::cout << track_name << " | " << artist_name << " | " << artist_count << " | " << released_year << " | " <<
+                released_month
+                << " | " << playlists << " | " << streams << " | " << key << " | " << mode << " | " << danceability << " | " <<
+                url << std::endl;
     }
+
 };
 
 #endif //RECORD_H
