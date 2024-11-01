@@ -62,7 +62,7 @@
 ### Capturas de Pantalla
 [Incluir capturas de pantalla relevantes con descripciones]
 
-### Análisis Comparativo
+### Análisis Comparativo ??????
 - Comparación con implementaciones similares
 - Ventajas y desventajas
 - Características únicas
