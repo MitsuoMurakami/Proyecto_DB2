@@ -17,20 +17,12 @@
 ## Backend: Índice Invertido
 
 ### Construcción del Índice Invertido
-- Implementación en memoria secundaria
-- Estructura de datos utilizada
-- Proceso de construcción
-- Optimizaciones realizadas
+- Construcción del índice invertido implementación propia (en Python).
+  * Implementación en memoria secundaria y estructura de datos utilizada
 
-### Similitud de Coseno
-- Algoritmo implementado
-- Optimizaciones en la ejecución de consultas
-- Resultados y métricas de rendimiento
-
-### Implementación en Bases de Datos
+- Ejecución óptima de consultas aplicando Similitud de Coseno
 - Construcción del índice invertido en PostgreSQL
-- Construcción del índice invertido en MongoDB
-- Comparación de rendimiento entre ambas implementaciones
+
 
 ## Backend: Índice Multidimensional
 
