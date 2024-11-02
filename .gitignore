@@ -1,0 +1,6 @@
+.venv/
+Parte3/data_extraction/credentials.py
+Parte3/data_extraction/data_previews/
+.cache
+__pycache__
+*.pyc

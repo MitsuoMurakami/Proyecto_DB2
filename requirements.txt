@@ -1,0 +1,10 @@
+flask
+spotipy
+html5lib
+requests
+requests-html
+beautifulsoup4
+youtube-dl
+pathlib
+pandas
+numpy
