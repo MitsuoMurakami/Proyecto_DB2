@@ -10,10 +10,19 @@
 ## Introducción
 ### Objetivo del Proyecto
 El objetivo de nuestro proyecto es usar modelos de recuperación y busqueda con la tecnica del indice invertido como metodo de indexación  en donde el usuario escribira 1 o más palabras y en base a eso se retornara las canciónes que tengan similitud entre lo que el usuario escribio y una estructura multidimensional que soporte en nuestro caso los audios de las canciones de nuestra data en donde se extraeran las caracteristicas de estos para hacer busquedas por similitud basado en los atributos musicales de las canciones teniendo una busqueda precisa y rápida.
+
 Luego para una mejor experiencia para el usuario implementaremos una interfaz gráfica en donde el usuario ingresara las palabras o caracteristicas de una canción y se devolvera las canciónes mas similares a lo que se ingreso.
 
 ### Dominio de Datos e Importancia de la Indexación
-[Explicar el dominio de datos específico y por qué es crucial la indexación en este contexto]
+**Datos básicos de la canción:** id de la canción, nombre, artista, letras, popularidad y fecha de lanzamiento.
+**Información del álbum:** nombre, id del álbum y su fecha de lanzamiento.
+**Detalles de la playlist:** cada canción puede estar en una o varias playlists, cada una con un id, nombre, género y subgénero
+**Atributos de audio:** como la bailabilidad, energía, tono, modo (mayor o menor), y el grado de vocalización del cantante.
+**Características compositivas:** la acústica, los instrumentos utilizados, la vivacidad de la canción  y la positividad que se transmite.
+**duracion y lenguaje:** Tambien tenemos la duración de la canción y el idioma en que se canta
+
+
+-**Importancia de la indexacion:** La indexación nos ayuda a que accedamos más rapidamente a nuestros datos ya que señalan la ubicación exacta de nuestras canciones en vez de buscar por toda nuestra base de datos, gracias a esto se reduce el uso de recursos de nuestros sistema, haciendo que nuestro código pueda ser escalable, también haciendo que las consultas del usuario sean bastante rápidas aunque nuestra data sea muy grande, finalmente esto nos ayuda en elordenamiento, filtrado y similitud ya que al centrarse en características especificas como nombre o artista, la recuperación de la información se vuelve más flexible y rápida.
 
 ## Backend: Índice Invertido
 
