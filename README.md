@@ -9,7 +9,8 @@
 
 ## Introducción
 ### Objetivo del Proyecto
-[Aquí va la descripción del objetivo principal del proyecto]
+El objetivo de nuestro proyecto es usar modelos de recuperación y busqueda con la tecnica del indice invertido como metodo de indexación  en donde el usuario escribira 1 o más palabras y en base a eso se retornara las canciónes que tengan similitud entre lo que el usuario escribio y una estructura multidimensional que soporte en nuestro caso los audios de las canciones de nuestra data en donde se extraeran las caracteristicas de estos para hacer busquedas por similitud basado en los atributos musicales de las canciones teniendo una busqueda precisa y rápida.
+Luego para una mejor experiencia para el usuario implementaremos una interfaz gráfica en donde el usuario ingresara las palabras o caracteristicas de una canción y se devolvera las canciónes mas similares a lo que se ingreso.
 
 ### Dominio de Datos e Importancia de la Indexación
 [Explicar el dominio de datos específico y por qué es crucial la indexación en este contexto]
