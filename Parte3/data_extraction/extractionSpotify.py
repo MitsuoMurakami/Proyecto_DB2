@@ -6,9 +6,6 @@ import os
 import requests
 from spotipy.oauth2 import SpotifyOAuth
 
-"""
-The code stops working by many request to the API.
-"""
 
 spAuth = SpotifyOAuth(
     client_id=credentials.client_id,
@@ -29,7 +26,7 @@ sp = spotipy.Spotify(auth_manager=spAuth)
 df_songs = pd.read_csv('./spotify_songs.csv')
 df_songs = df_songs['track_id']
 df_songs = df_songs.to_list()
-df_songs = df_songs[4943:]
+df_songs = df_songs[14941:]
 # carpeta para guardar las muestras de audio
 output_folder = "data_previews"
 os.makedirs(output_folder, exist_ok=True)
@@ -37,7 +34,7 @@ os.makedirs(output_folder, exist_ok=True)
 # muestras de 30 segundos
 success = 0
 fail = 0
-i = 4943
+i = 14941
 for track_id in df_songs:
     # Obtener información de la canción
     track_info = sp.track(track_id)
@@ -51,7 +48,7 @@ for track_id in df_songs:
             # guardar el archivo
             with open(file_path, 'wb') as f:
                 f.write(response.content)
-            print(f"Descargada: {i} {track_name}")
+                print(f"Descargada: {i} {track_name}")
             success += 1
         except Exception as e:
             print(f"Error: {i} {track_name}: {e}")
@@ -60,6 +57,7 @@ for track_id in df_songs:
         print(f"No hay: {i} {track_name}")
         fail += 1
     i += 1
+
 
 print(f"Descargadas {success} canciones, fallaron {fail}")
 
