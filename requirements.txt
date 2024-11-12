@@ -1,10 +1,10 @@
-flask
-spotipy
+flask~=3.0.3
+spotipy~=2.24.0
 html5lib
-requests
+requests~=2.32.3
 requests-html
 beautifulsoup4
 youtube-dl
 pathlib
-pandas
+pandas~=2.2.3
 numpy==2.0.0
