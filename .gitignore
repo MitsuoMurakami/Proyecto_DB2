@@ -5,3 +5,4 @@ Parte3/data_extraction/data_previews/
 __pycache__
 *.pyc
 .idea
+preprocessed_words.txt
