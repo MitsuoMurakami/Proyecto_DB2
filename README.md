@@ -44,7 +44,13 @@ Un índice GIN almacena un conjunto de pares (clave, lista de contabilización),
 
 ### Técnicas de Indexación
 - Descripción de las librerías utilizadas
+
+   Faiss es un repositorio de Facebook el cual contempla varios tipos de indexación. 
+
 - Justificación de la elección
+
+   Se utilizó IndexLSH debido a la alta dimensionalidad de la data. Este índice utiliza un método de cálculo de distancia de bajo costo, Hamming distance. Además de utilizar vectores binarios.
+
 - Estructura de datos implementada
 
 ### Búsquedas
@@ -59,6 +65,9 @@ Un índice GIN almacena un conjunto de pares (clave, lista de contabilización),
 
 ### Maldición de la Dimensionalidad
 - Análisis del problema
+
+   El Rtree no es eficiente por el alto solapamiento que ocurre al aplicar este índice.
+
 - Estrategias de mitigación implementadas
 - Resultados obtenidos
 
