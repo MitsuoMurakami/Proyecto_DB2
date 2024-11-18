@@ -5,6 +5,6 @@ Parte3/data_extraction/data_previews/
 __pycache__
 *.pyc
 .idea
-preprocessed_words.txt
 *.pkl
-Parte2/blocks/
+Parte2/preprocessed_words.txt
+Parte2/blocks
