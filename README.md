@@ -9,20 +9,25 @@
 
 ## Introducción
 ### Objetivo del Proyecto
-El objetivo de nuestro proyecto es usar modelos de recuperación y busqueda con la tecnica del indice invertido como metodo de indexación  en donde el usuario escribira 1 o más palabras y en base a eso se retornara las canciónes que tengan similitud entre lo que el usuario escribio y una estructura multidimensional que soporte en nuestro caso los audios de las canciones de nuestra data en donde se extraeran las caracteristicas de estos para hacer busquedas por similitud basado en los atributos musicales de las canciones teniendo una busqueda precisa y rápida.
+El objetivo de nuestro proyecto es usar modelos de recuperación y búsqueda con la técnica del índice invertido como método de indexación en donde el usuario escribirá 1 o más palabras y en base a eso se retornara las canciones que tengan similitud entre lo que el usuario escribio y una estructura multidimensional que soporte en nuestro caso los audios de las canciones de nuestra data en donde se extraeran las características de estos para hacer búsquedas por similitud basado en los atributos musicales de las canciones teniendo una búsqueda precisa y rápida.
 
-Luego para una mejor experiencia para el usuario implementaremos una interfaz gráfica en donde el usuario ingresara las palabras o caracteristicas de una canción y se devolvera las canciónes mas similares a lo que se ingreso.
+Luego, para una mejor experiencia para el usuario implementaremos una interfaz gráfica en donde el usuario ingresará las palabras o características de una canción y se devolvera las canciones más similares a lo que se ingresó.
 
 ### Dominio de Datos e Importancia de la Indexación
 **Datos básicos de la canción:** id de la canción, nombre, artista, letras, popularidad y fecha de lanzamiento.
+
 **Información del álbum:** nombre, id del álbum y su fecha de lanzamiento.
+
 **Detalles de la playlist:** cada canción puede estar en una o varias playlists, cada una con un id, nombre, género y subgénero
+
 **Atributos de audio:** como la bailabilidad, energía, tono, modo (mayor o menor), y el grado de vocalización del cantante.
+
 **Características compositivas:** la acústica, los instrumentos utilizados, la vivacidad de la canción  y la positividad que se transmite.
-**duracion y lenguaje:** Tambien tenemos la duración de la canción y el idioma en que se canta
+
+**Duracion y lenguaje:** Tambien tenemos la duración de la canción y el idioma en que se canta
 
 
--**Importancia de la indexacion:** La indexación nos ayuda a que accedamos más rapidamente a nuestros datos ya que señalan la ubicación exacta de nuestras canciones en vez de buscar por toda nuestra base de datos, gracias a esto se reduce el uso de recursos de nuestros sistema, haciendo que nuestro código pueda ser escalable, también haciendo que las consultas del usuario sean bastante rápidas aunque nuestra data sea muy grande, finalmente esto nos ayuda en elordenamiento, filtrado y similitud ya que al centrarse en características especificas como nombre o artista, la recuperación de la información se vuelve más flexible y rápida.
+-**Importancia de la indexacion:** La indexación nos ayuda a que accedamos más rápidamente a nuestros datos ya que señalan la ubicación exacta de nuestras canciones en vez de buscar por toda nuestra base de datos, gracias a esto se reduce el uso de recursos de nuestros sistema, haciendo que nuestro código pueda ser escalable, también haciendo que las consultas del usuario sean bastante rápidas aunque nuestra data sea muy grande, finalmente esto nos ayuda en el ordenamiento, filtrado y similitud ya que al centrarse en características especificas como nombre o artista, la recuperación de la información se vuelve más flexible y rápida.
 
 ## Backend: Índice Invertido
 
@@ -31,12 +36,14 @@ Luego para una mejor experiencia para el usuario implementaremos una interfaz gr
   * Implementación en memoria secundaria y estructura de datos utilizada
 
 - Ejecución óptima de consultas aplicando Similitud de Coseno
+  * 
+
 - Construcción del índice invertido en PostgreSQL:
    1. Primero, agregamos una columna full_text en la tabla Canciones para almacenar la información concatenada del nombre de la canción, el nombre del artista y la letra. Esta columna facilita el análisis y búsqueda textual sobre múltiples atributos.
    2. Creamos un atributo de tipo vectorial, en este caso nosotros convertimos la columna(full_text) en la que concatenamos el nombre de la canción, el nombre del artista y la letra de la canción. PostgreSQL optimiza las palabras de la columna para una búsqueda eficiente mediante procesamiento lingüístico (por ejemplo, eliminando palabras comunes y aplicando lematización).
    3. Luego Creamos el índice GIN sobre dicho vector. GIN está diseñado para manejar casos en los que los elementos que se van a indexar son valores compuestos y las consultas que debe manejar el índice deben buscar valores de elementos que aparecen dentro de los elementos compuestos. Por ejemplo, los elementos podrían ser documentos y las consultas podrían ser búsquedas de documentos que contengan palabras específicas.
 Un índice GIN almacena un conjunto de pares (clave, lista de contabilización), donde una lista de contabilización es un conjunto de identificadores de fila en los que aparece la clave.
-   4. Por último aplicamos las consultas con el índice y la query usando como score la similitud coseno retornándonos un top K, teniendo en cuenta que las palabras de la query tiene que estar separada por el símbolo de or(|) 
+   4. Por último aplicamos las consultas con el índice y la query usando como score la similitud coseno retornándonos un top K, teniendo en cuenta que las palabras de la query tiene que estar separada por el símbolo de or (|).
 
 
 
@@ -66,10 +73,15 @@ Un índice GIN almacena un conjunto de pares (clave, lista de contabilización),
 ### Maldición de la Dimensionalidad
 - Análisis del problema
 
-   El Rtree no es eficiente por el alto solapamiento que ocurre al aplicar este índice.
+   * El Rtree no es eficiente por el alto solapamiento que ocurre al aplicar este índice.
 
 - Estrategias de mitigación implementadas
+
+   * Se implementó el índice 
+
 - Resultados obtenidos
+
+   * 
 
 ## Frontend
 
