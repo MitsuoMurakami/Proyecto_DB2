@@ -46,6 +46,19 @@ Un índice GIN almacena un conjunto de pares (clave, lista de contabilización),
    4. Por último aplicamos las consultas con el índice y la query usando como score la similitud coseno retornándonos un top K, teniendo en cuenta que las palabras de la query tiene que estar separada por el símbolo de or (|).
 
 
+|    N     | SPIMI   | Postgres |
+|----------|---------|----------|
+| 1000     | 0.5931  | 0.0097   |
+| 2000     | 0.5718  | 0.0152   |
+| 4000     | 0.5843  | 0.0558   |
+| 6000     | 0.5805  | 0.035    |
+| 8000     | 0.5631  | 0.0456   |
+| 10000    | 0.6636  | 0.054    |
+| 12000    | 0.5873  | 0.0637   |
+| 14000    | 0.5862  | 0.0739   |
+| 16000    | 0.5829  | 0.0861   |
+| 18000    | 0.6367  | 0.0983   |
+
 
 ## Backend: Índice Multidimensional
 
