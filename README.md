@@ -29,7 +29,7 @@ Luego, para una mejor experiencia para el usuario implementaremos una interfaz g
 
 -**Importancia de la indexacion:** La indexación nos ayuda a que accedamos más rápidamente a nuestros datos ya que señalan la ubicación exacta de nuestras canciones en vez de buscar por toda nuestra base de datos, gracias a esto se reduce el uso de recursos de nuestros sistema, haciendo que nuestro código pueda ser escalable, también haciendo que las consultas del usuario sean bastante rápidas aunque nuestra data sea muy grande, finalmente esto nos ayuda en el ordenamiento, filtrado y similitud ya que al centrarse en características especificas como nombre o artista, la recuperación de la información se vuelve más flexible y rápida.
 
-## Backend: Índice Invertido
+## Backend: Índice Invertido (Parte 1)
 
 ### Construcción del Índice Invertido
 - Construcción del índice invertido implementación propia (en Python).
@@ -45,22 +45,7 @@ Luego, para una mejor experiencia para el usuario implementaremos una interfaz g
 Un índice GIN almacena un conjunto de pares (clave, lista de contabilización), donde una lista de contabilización es un conjunto de identificadores de fila en los que aparece la clave.
    4. Por último aplicamos las consultas con el índice y la query usando como score la similitud coseno retornándonos un top K, teniendo en cuenta que las palabras de la query tiene que estar separada por el símbolo de or (|).
 
-
-|    N     | SPIMI   | Postgres |
-|----------|---------|----------|
-| 1000     | 0.5931  | 0.0097   |
-| 2000     | 0.5718  | 0.0152   |
-| 4000     | 0.5843  | 0.0558   |
-| 6000     | 0.5805  | 0.035    |
-| 8000     | 0.5631  | 0.0456   |
-| 10000    | 0.6636  | 0.054    |
-| 12000    | 0.5873  | 0.0637   |
-| 14000    | 0.5862  | 0.0739   |
-| 16000    | 0.5829  | 0.0861   |
-| 18000    | 0.6367  | 0.0983   |
-
-
-## Backend: Índice Multidimensional
+## Backend: Índice Multidimensional (Parte 2)
 
 ### Técnicas de Indexación
 - Descripción de las librerías utilizadas
@@ -121,8 +106,23 @@ Un índice GIN almacena un conjunto de pares (clave, lista de contabilización),
 
 ### Resultados Experimentales
 #### Tablas de Resultados
-[Incluir tablas con métricas relevantes]
+Tabla sobre la medicion del performance entre SPIMI (implementacion propia) y PostgreSQL
+|    N     | SPIMI   | Postgres |
+|----------|---------|----------|
+| 1000     | 0.5931  | 0.0097   |
+| 2000     | 0.5718  | 0.0152   |
+| 4000     | 0.5843  | 0.0558   |
+| 6000     | 0.5805  | 0.035    |
+| 8000     | 0.5631  | 0.0456   |
+| 10000    | 0.6636  | 0.054    |
+| 12000    | 0.5873  | 0.0637   |
+| 14000    | 0.5862  | 0.0739   |
+| 16000    | 0.5829  | 0.0861   |
+| 18000    | 0.6367  | 0.0983   |
 
+
+Tabla sobre el tiempo de ejecución entre KNN-RTree, KNN-secuencial y el KNN-HighD sobre una colección de objetos de
+tamaño N con el valor de K = 8
 |    N     | KNN secuencial | KNN-Rtree | KNN-HighD |
 |----------|----------------|-----------|------------
 | 700      |      1.7       |    1.4    |   0.0015  | 
