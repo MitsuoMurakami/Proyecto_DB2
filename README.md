@@ -123,6 +123,16 @@ Un índice GIN almacena un conjunto de pares (clave, lista de contabilización),
 #### Tablas de Resultados
 [Incluir tablas con métricas relevantes]
 
+|    N     | KNN secuencial | KNN-Rtree | KNN-HighD |
+|----------|----------------|-----------|------------
+| 700      |      1.7       |    1.4    |   0.0015  | 
+| 1000     |      2.2       |    2.2    |   0.0022  |
+| 3000     |      6.9       |    4.4    |   0.0032  |
+| 5000     |      7.9       |    7.6    |   0.0049  |
+| 7000     |      9.8       |    11.2   |   0.0053  |
+| 9000     |      11.7      |    28.2   |   0.0055  |
+| 11000    |      15.6      |    35.8   |   0.003   |
+
 #### Gráficos Comparativos
 [Incluir gráficos mostrando rendimiento y comparaciones]
 
