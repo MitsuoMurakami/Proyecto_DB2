@@ -34,11 +34,22 @@ Luego, para una mejor experiencia para el usuario implementaremos una interfaz g
 ### Construcción del Índice Invertido SPIMI
 #### Construcción del índice invertido en memoria secundaria.
 
-La implementacion del indice invertido se hizo en 2 etapas, la creacion los SPIMI blocks y el proceso de merge de los bloques para la generación de un indice en memoria secundaria.
+La implementación del índice invertido se hizo en 2 etapas, la creación los SPIMI blocks y el proceso de merge de los bloques para la generación de un índice en memoria secundaria.
 
-En la siguiente imagen, se puede observar la primera etapa, esta comienza con un archivo .csv que contiene informacion de 18455 canciones, cada una con 25 atributos. Dado que este es un archivo grande y puede contener información 
+En la siguiente imagen, se puede observar la primera etapa, esta comienza con un archivo .csv que contiene información de 18455 canciones, cada una con 25 atributos. Dado que este es un archivo grande, el preprocesamiento se hizo por una canción a la vez, es decir, las líneas del archivo .csv se extrajeron una por una. De cada canción solo se consideraron los atributos de nombre, artista y letra. Estos atributos se concatenaron y se les aplicó un proceso de tokenización, filtro de stopwords y reducción de palabras. Dado que el archivo .csv content canciones en diferentes idiomas, el preprocesamiento se hizo de acuerdo al idioma de cada canción, para lo cual se empleó 15 stoplist diferentes.
+
+Luego del preprocesamiento de cada canción se obtuvo una lista de tokens, con los cuales se calculó el term frequency (tf) de cada token. Con ello, cada vez que se preprocesaba una canción, se escribia en un el tf de los tokens y el id relativo de la canción a la que pertencen en un archivo temporal preprocessed_word.txt.
+
+Por último, para la creación de los SPIMI blocks, se recorrió el archivo preprocessed_word.txt y se aplicó el algoritmo SPIMI. Este algoritmo consiste en leer el archivo preprocessed_word.txt y crear un índice invertido con un diccionario, sin embargo, dado que se tiene memoria limitada, cada vez que dicho diccionario alcanza un tamaño de 0.5 Mb, se ordena alfabéticamente y se almacena en un bloque. Cada bloque se guarda en un archivo temporal con el formato block_x.txt, donde x es el número de bloque. Cada bloque contiene un conjunto de pares (término, posting list) donde la posting list contiene los id de la canción y el tf de cada término en la canción.
 
 ![BD2_P2_1 drawio](https://github.com/user-attachments/assets/5b88dffa-f32e-4ea2-916e-44ae67b9d1ba)
+
+La siguiente etapa consta del proceso de merge de los bloques obtenidos, en la siguiente figura se puede observar dicho proceso. Para ello, se abren todos los bloques creados y se lee el primer elemento de cada bloque. Estos elementos se insertan en un MinHeap para tener en el top al menor término alfabéticamente, este MinHeap tiene como tamaño la cantidad de bloques. 
+
+Luego, se extrae el término del top del MinHeap y se compara con el siguiente termino en ser extraído, si son iguales se unen las posting list, si no se guarda el término en un archivo index.txt y se extrae el siguiente elemento del bloque del que se extrajo el término. Además, antes de escribir cada término, dado que ya se tiene todos los ids de las canciones en que aparece cada término, se calcula el idf y con ello se va calculando progresivamente la norma para cada documento. Este proceso se repite hasta que se hayan leído todos los términos de todos los bloques, es decir, hasta que el MinHeap tenga tamaño 0. 
+
+Asimismo, cada vez que se escribe un término en el archivo index.txt, se guarda la posición física en la que se escribe el término y su posting list en un archivo position_terms.pkl. De esta manera, los terminos son escritos en un archivo index.txt alfabéticamente y se genera un índice invertido en memoria secundaria. 
+
 ![BD2_P2_2 drawio](https://github.com/user-attachments/assets/01a6fd22-1b83-438e-84f7-5e98e2bcd654)
 
 - Ejecución óptima de consultas aplicando Similitud de Coseno
