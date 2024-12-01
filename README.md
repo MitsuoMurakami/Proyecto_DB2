@@ -134,7 +134,10 @@ tamaño N con el valor de K = 8
 | 11000    |      15.6      |    35.8   |   0.003   |
 
 #### Gráficos Comparativos
-[Incluir gráficos mostrando rendimiento y comparaciones]
+![image](https://github.com/user-attachments/assets/66f8eed6-7f25-48a9-9222-7a07cbdf6066)
+
+![image](https://github.com/user-attachments/assets/b3c6fdc3-1509-4408-8992-ee29cb90cdc3)
+
 
 ### Análisis y Discusión
 - Interpretación de resultados
