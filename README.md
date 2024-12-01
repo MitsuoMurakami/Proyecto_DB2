@@ -81,6 +81,7 @@ Un índice GIN almacena un conjunto de pares (clave, lista de contabilización),
 - Implementación
 - Complejidad computacional
 - Optimizaciones realizadas
+![image](https://github.com/user-attachments/assets/e2c73fcc-cfaf-40b3-9632-9dbe86480af6)
 
 #### Range Search
 - Implementación (si aplica)
