@@ -31,14 +31,21 @@ Luego, para una mejor experiencia para el usuario implementaremos una interfaz g
 
 ## Backend: Índice Invertido (Parte 1)
 
-### Construcción del Índice Invertido
-- Construcción del índice invertido implementación propia (en Python).
-  * Implementación en memoria secundaria y estructura de datos utilizada
+### Construcción del Índice Invertido SPIMI
+#### Construcción del índice invertido en memoria secundaria.
+
+La implementacion del indice invertido se hizo en 2 etapas, la creacion los SPIMI blocks y el proceso de merge de los bloques para la generación de un indice en memoria secundaria.
+
+En la siguiente imagen, se puede observar la primera etapa, esta comienza con un archivo .csv que contiene informacion de 18455 canciones, cada una con 25 atributos. Dado que este es un archivo grande y puede contener información 
+
+![BD2_P2_1 drawio](https://github.com/user-attachments/assets/5b88dffa-f32e-4ea2-916e-44ae67b9d1ba)
+![BD2_P2_2 drawio](https://github.com/user-attachments/assets/01a6fd22-1b83-438e-84f7-5e98e2bcd654)
 
 - Ejecución óptima de consultas aplicando Similitud de Coseno
   * 
 
-- Construcción del índice invertido en PostgreSQL:
+
+### Construcción del índice invertido en PostgreSQL:
    1. Primero, agregamos una columna full_text en la tabla Canciones para almacenar la información concatenada del nombre de la canción, el nombre del artista y la letra. Esta columna facilita el análisis y búsqueda textual sobre múltiples atributos.
    2. Creamos un atributo de tipo vectorial, en este caso nosotros convertimos la columna(full_text) en la que concatenamos el nombre de la canción, el nombre del artista y la letra de la canción. PostgreSQL optimiza las palabras de la columna para una búsqueda eficiente mediante procesamiento lingüístico (por ejemplo, eliminando palabras comunes y aplicando lematización).
    3. Luego Creamos el índice GIN sobre dicho vector. GIN está diseñado para manejar casos en los que los elementos que se van a indexar son valores compuestos y las consultas que debe manejar el índice deben buscar valores de elementos que aparecen dentro de los elementos compuestos. Por ejemplo, los elementos podrían ser documentos y las consultas podrían ser búsquedas de documentos que contengan palabras específicas.
