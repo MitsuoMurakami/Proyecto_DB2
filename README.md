@@ -167,6 +167,8 @@ conda install -c pytorch faiss-cpu=1.9.0
 
 #### Indice invertido: Ejemplo de consulta y respuesta
 ![Screenshot 2023-12-01 195624](https://github.com/user-attachments/assets/fe7e652e-3f44-4384-b641-8119c301c537)
+![Screenshot 2024-12-02 030817](https://github.com/user-attachments/assets/a7e1da7a-eec6-4659-83ee-ab51fc63fed7)
+![Screenshot 2024-12-02 030908](https://github.com/user-attachments/assets/b5b8ec91-625f-4ccf-970d-4d6c351d6d7a)
 
 ## Experimentación
 
