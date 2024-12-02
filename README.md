@@ -123,6 +123,9 @@ En cuanto a las optimizaciónes relizadas como se indicó usamos normalización 
 
 - Al índice LSH se le pasan los datos como vectores donde n_bits es un parámetro utilizado para mapear estos features de entrada en la función de hashing. Este valor en la librería de faiss decide, si este es menor o igual a la dimensión del vector, utiliza proyectores ortogonales, caso contrario, marcos ajustados. Es un método más preciso ya que marcos ajustados es una técnica representativa (binaria) que mantiene las relaciones sin perder información importante. Esto ayuda a que el cálculo con Hamming distance sea más eficiente, donde se calcula la cantidad de diferencias entre bits de los vectores.
 
+![lsh drawio](https://github.com/user-attachments/assets/d98efdf8-3c55-4c09-aedf-479d56fcc468)
+
+
 ## Frontend
 
 Tecnologías utilizadas: El desarrollo de la interfaz se hizo con Gradio por su facilidad de uso e integracion en Python. Ademas, Gradio proporciona bloques predefinidos para reproducir audio, mostrar texto, entre otros, lo que facilitó el desarrollo de la interfaz.
