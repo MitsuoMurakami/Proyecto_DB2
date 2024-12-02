@@ -9,25 +9,31 @@
 
 ## Introducción
 ### Objetivo del Proyecto
-El objetivo de nuestro proyecto es usar modelos de recuperación y búsqueda con la técnica del índice invertido como método de indexación en donde el usuario escribirá 1 o más palabras y en base a eso se retornara las canciones que tengan similitud entre lo que el usuario escribio y una estructura multidimensional que soporte en nuestro caso los audios de las canciones de nuestra data en donde se extraeran las características de estos para hacer búsquedas por similitud basado en los atributos musicales de las canciones teniendo una búsqueda precisa y rápida.
-
-Luego, para una mejor experiencia para el usuario implementaremos una interfaz gráfica en donde el usuario ingresará las palabras o características de una canción y se devolvera las canciones más similares a lo que se ingresó.
+El objetivo de nuestro proyecto es implementar un sistema de indexación para canciones de Spotify con búsquedas por similitud rapidas y eficientes. Para ello, se usará modelos de recuperación y búsqueda con la técnica del índice invertido como método de indexación. El usuario escribirá 1 o más palabras y utilizando un índice invertido en memoria secundaria, se retornará las canciones que tengan la mayor similitud. Asimismo, el usuario podrá ingresar archivos de audio y se le retornará los audios más similares usando estructuras multidimensionales. 
+Además, para una mejor experiencia para el usuario, implementaremos una interfaz gráfica en donde el usuario pueda ingresar datos textuales de la canción o archivos de audio para obtener los resultados de manera más amigable. 
 
 ### Dominio de Datos e Importancia de la Indexación
-**Datos básicos de la canción:** id de la canción, nombre, artista, letras, popularidad y fecha de lanzamiento.
 
-**Información del álbum:** nombre, id del álbum y su fecha de lanzamiento.
+El Índice Invertido en memoria secundaria (Parte 1) se realizará utilizando [Audio features and lyrics of Spotify songs dataset](https://www.kaggle.com/datasets/imuhammad/audio-features-and-lyrics-of-spotify-songs/data), el cual contiene información de 18455 canciones de Spotify. Dicho dataset contiene la siguiente información: 
 
-**Detalles de la playlist:** cada canción puede estar en una o varias playlists, cada una con un id, nombre, género y subgénero
+* **Datos básicos de la canción:** id de la canción, nombre, artista, letras, popularidad y fecha de lanzamiento.
 
-**Atributos de audio:** como la bailabilidad, energía, tono, modo (mayor o menor), y el grado de vocalización del cantante.
+* **Información del álbum:** nombre, id del álbum y su fecha de lanzamiento.
 
-**Características compositivas:** la acústica, los instrumentos utilizados, la vivacidad de la canción  y la positividad que se transmite.
+* **Detalles de la playlist:** cada canción puede estar en una o varias playlists, cada una con un id, nombre, género y subgénero
 
-**Duracion y lenguaje:** Tambien tenemos la duración de la canción y el idioma en que se canta
+* **Atributos de audio:** como la bailabilidad, energía, tono, modo (mayor o menor), y el grado de vocalización del cantante.
 
+* **Características compositivas:** la acústica, los instrumentos utilizados, la vivacidad de la canción  y la positividad que se transmite.
 
--**Importancia de la indexacion:** La indexación nos ayuda a que accedamos más rápidamente a nuestros datos ya que señalan la ubicación exacta de nuestras canciones en vez de buscar por toda nuestra base de datos, gracias a esto se reduce el uso de recursos de nuestros sistema, haciendo que nuestro código pueda ser escalable, también haciendo que las consultas del usuario sean bastante rápidas aunque nuestra data sea muy grande, finalmente esto nos ayuda en el ordenamiento, filtrado y similitud ya que al centrarse en características especificas como nombre o artista, la recuperación de la información se vuelve más flexible y rápida.
+* **Duración y lenguaje:** También tenemos la duración de la canción y el idioma en que se canta
+
+Por otro lado, el Índice Multidimensional (Parte 2) se realizará utilizando los previews de las canciones presentes en Audio features and lyrics of Spotify songs dataset. Estos fueron obtenidos usando la API de Spotify y la libreria Spotipy, dado que no todas las canciones tenian un preview disponible, se obtuvo un total de 11883 audios de 30 segundos.
+
+### Importancia de la indexacion:
+
+El manejo de grandes volúmenes de datos es un problema muy presente en la actualidad, más aún cuando se trata de datos no estructurados como los audios de las canciones o datos con una gran cantidad de palabras como las letras de las canciones. En este contexto, la indexación es muy importante para poder realizar búsquedas eficientes y rápida. Es asi que, empresas como Spotify que manejan una gran cantidad de canciones, necesitan de un buen sistema de indexación para poder realizar búsquedas y hacer recomendaciones de canciones con base en su similitud. Por ello, en este proyecto se implementará un sistema de indexación que permita realizar búsquedas eficientes y rápidas en grandes volúmenes de datos.
+
 
 ## Backend: Índice Invertido (Parte 1)
 
@@ -52,9 +58,6 @@ Asimismo, cada vez que se escribe un término en el archivo index.txt, se guarda
 
 ![BD2_P2_2 drawio](https://github.com/user-attachments/assets/01a6fd22-1b83-438e-84f7-5e98e2bcd654)
 
-- Ejecución óptima de consultas aplicando Similitud de Coseno
-  * 
-
 
 ### Construcción del índice invertido en PostgreSQL:
    1. Primero, agregamos una columna full_text en la tabla Canciones para almacenar la información concatenada del nombre de la canción, el nombre del artista y la letra. Esta columna facilita el análisis y búsqueda textual sobre múltiples atributos.
@@ -73,21 +76,18 @@ Un índice GIN almacena un conjunto de pares (clave, lista de contabilización),
 
 - Justificación de la elección
 
-   Se utilizó IndexLSH debido a la alta dimensionalidad de la data. Este índice utiliza un método de cálculo de distancia de bajo costo, Hamming distance. Además de utilizar vectores binarios.
-
-- Estructura de datos implementada
+   * Se utilizó IndexLSH debido a la alta dimensionalidad de la data. Este índice utiliza un método de cálculo de distancia de bajo costo, Hamming distance. Además de utilizar vectores binarios.
 
 ### Búsquedas
-Lo que se hizo primero es tomar los audios de 11903 canciones y de eso sus primeros 30 segundos de cada canción, de esto obtuvimos que cada canción tiene 20 descriptores locales  y la mayoria de estos descriptores tienen una dimension de 1280, despúes de esto antes de guardar el archivo, verificamos que todos los descriptores tengan la misma dimensión y al parecer 20 no tenian la misma dimension, por lo que nos quedamos con 11883 cancionese en total.
+Se comenzo haciendo el preprocesamiento de los audios de 11883 canciones, cada uno de 30 segundos. Estos archivos de audio se procesaron con Librosa y se uso Mel Frequency Cepstral Coefficient (MFCC) para extraer los feature vectors de las canciones. Con ello, se obtuvo 20 descriptores locales por cada canción, cada uno de dimension de 1280. 
 
 
-Para las busquedas del KNN con heap y KNN_R_tree  hemos aplicado PCA para reducir la dimensionalidad,ya que cuando la dimensionalidad es muy grande estos modelos se hacen muy deficientes, es por eso que despues de la recolección de vectores característicos y su respectiva normalización, aplicamos PCA y aplicando el 90% de varianza explicada que toma el 90% de las dimensiones más importantes, asi logrando que cada descriptor local tenga solo 154 dimensiones.
+Para las búsquedas del KNN con heap y KNN_R_tree se aplicó PCA para reducir la dimensionalidad, ya que cuando la dimensionalidad es muy grande estos modelos se hacen muy deficientes, es por eso que después de la recolección de vectores característicos y su respectiva normalización, aplicamos PCA y buscamos la cantidad de dimensiones que explican el 90% de la varianza. Logrando asi, que cada descriptor local sea reducido a solo 154 dimensiones.
 
-Finalmente aplanamoss los descriptores quedandonos con una dimension de (237664,154) donde cada 20 numeros del 0 ql 237664 se refiere a una canción , por lo que ahora si podremos usar el KNN.
 #### KNN Search
 - Implementación
-La busqueda KNN se implemento utilizando colas de prioridad basado en un max-heap para identificar las canciones mas cercanas en donde:
-Primero calculamos la distancia de invertida con cada vector característico de las canciones, gracias a esto podemos hacer el max-heap, para luego extraer los indices de los vecinos más cercanos, dividiendolo por las caracteristicas que en nuestro caso son 20. Finalmente contamos cuantas veces aparece cada identificador y obtenemos el top_k vecinos mas cercanos.
+La búsqueda KNN se implementó utilizando colas de prioridad basada en un max-heap para identificar las canciones más cercanas en donde:
+Primero calculamos la distancia con cada vector característico de las canciones, gracias a esto podemos hacer el max-heap, para luego extraer los índices de los vecinos más cercanos, dividiendolo por las characteristics que en nuestro caso son 20. Finalmente, usamos majority voting y contamos cuantas veces aparece cada identificador para obtener el top_k vecinos más cercanos.
 - Complejidad computacional
 Donde N es: numero de canciones que tenemos.
 D: las dimensiones que contiene cada canción
