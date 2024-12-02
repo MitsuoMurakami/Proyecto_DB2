@@ -100,8 +100,7 @@ En cuanto a las optimizaciónes relizadas como se indico usamos normalización y
 #### Indexacion R_tree
 ![image](https://github.com/user-attachments/assets/a5a02885-cc22-4c5b-b36c-f96a3aec7a4b)
 #### KNN R_tree
-- Implementación (si aplica)
-- Limitaciones y ventajas
+![Knn_R-tree](https://github.com/user-attachments/assets/5f49ff37-38a2-4e8b-a7d8-19e119ed0621)
 
 ##### Maldición de la Dimensionalidad
 - Análisis del problema
