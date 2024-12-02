@@ -94,24 +94,29 @@ O(log(k)) es el costo del heap donde k es el tamaño del heap
 Total: O(N x D) + O(N x log(k))
 - Optimizaciones realizadas
 En cuanto a las optimizaciónes relizadas como se indico usamos normalización y PCA para una mayor eficiencia, a parte de esto aplanamos las características para poder mapear los indices de las canciones y usar 1 KNN en vez de 20, despues usamos el max-heap gracias a las colas de prioridad que nos ahorra bastantes operaciones en memoria y finalmente usamos un sistema de votación para obtener el top_k.
+
 ![image](https://github.com/user-attachments/assets/e2c73fcc-cfaf-40b3-9632-9dbe86480af6)
 
+#### Indexacion R_tree
+![image](https://github.com/user-attachments/assets/a5a02885-cc22-4c5b-b36c-f96a3aec7a4b)
 #### KNN R_tree
-- Implementación (si aplica)
-- Limitaciones y ventajas
+![Knn_R-tree](https://github.com/user-attachments/assets/5f49ff37-38a2-4e8b-a7d8-19e119ed0621)
 
-### Maldición de la Dimensionalidad
+##### Maldición de la Dimensionalidad
 - Análisis del problema
 
    * El Rtree no es eficiente por el alto solapamiento que ocurre al aplicar este índice.
 
 - Estrategias de mitigación implementadas
 
-   * Se implementó el índice 
+   * Se implementó pca a la data de entrada de manera que se redujo la dimensionalidad.
 
-- Resultados obtenidos
 
-   * 
+#### KNN-HighD
+
+- Se utilizó la librería faiss para el método de indexación LSH.
+
+- Al índice LSH se le pasan los datos como vectores donde n_bits es un parámetro utilizado para mapear estos features de entrada en la función de hashing. Este valor en la librería de faiss decide, si este es menor o igual a la dimensión del vector, utiliza proyectores ortogonales, caso contrario, marcos ajustados. Es un método más preciso ya que marcos ajustados es una técnica representativa (binaria) que mantiene las relaciones sin perder información importante. Esto ayuda a que el cálculo con Hamming distance sea más eficiente, donde se calcula la cantidad de diferencias entre bits de los vectores.
 
 ## Frontend
 ![Screenshot 2024-12-01 195624](https://github.com/user-attachments/assets/fe7e652e-3f44-4384-b641-8119c301c537)
