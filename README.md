@@ -68,7 +68,8 @@ Un índice GIN almacena un conjunto de pares (clave, lista de contabilización),
 ### Técnicas de Indexación
 - Descripción de las librerías utilizadas
 
-   Faiss es un repositorio de Facebook el cual contempla varios tipos de indexación. 
+   * Faiss es un repositorio de Facebook el cual contempla varios tipos de indexación.
+   * R-tree proporciona una serie de funciones avanzadas de indexación espacial para los usuarios de Python
 
 - Justificación de la elección
 
@@ -106,11 +107,15 @@ En cuanto a las optimizaciónes relizadas como se indico usamos normalización y
 - Análisis del problema
 
    * El Rtree no es eficiente por el alto solapamiento que ocurre al aplicar este índice.
+   * Esto surge al trabajar con vectores de características que tienen una alta dimensionalidad (154 dimensiones para describir canciones). Esto puede afectar el desempeño del índice R-Tree y la búsqueda KNN debido al aumento de la complejidad del cálculo de distancias y la degradación de las métricas.
+   * En un espacio de alta dimensionalidad, los datos tienden a dispersarse, lo que reduce la densidad de datos útiles en cualquier región del espacio.
+   * Los cálculos de distancias y la búsqueda de vecinos más cercanos son computacionalmente más costosos en espacios de alta dimensionalidad.
+
 
 - Estrategias de mitigación implementadas
 
-   * Se implementó pca a la data de entrada de manera que se redujo la dimensionalidad.
-
+   * Se aplicó PCA para reducir las dimensiones originales de los vectores de características a un espacio de menor dimensionalidad. Esto ayuda a conservar la mayor cantidad de información relevante posible mientras se elimina el ruido y las redundancias.
+   * Dado que cada canción tiene 20 vectores de características, se realiza una búsqueda KNN para cada uno de estos vectores. Los vecinos más cercanos se cuentan y, a través de una votación mayoritaria, se determina cuáles son las canciones más similares. Este enfoque mejora la robustez al ruido y reduce el impacto de anomalías en vectores individuales.
 
 #### KNN-HighD
 
@@ -179,7 +184,17 @@ tamaño N con el valor de K = 8
 
 
 ### Análisis y Discusión
-- Interpretación de resultados
-- Conclusiones principales
-- Recomendaciones futuras
+1. Interpretación de resultados
+   + PostgreSQL vs SPIMI: PostgreSQL demuestra ser superior, gracias a sus optimizaciones internas. Por otro lado, SPIMI, cumple su propósito de manera funcional y demuestra ser una solución sólida en colecciones pequeñas y medianas.
+   + KNN-HighD se beneficia del uso de LSH implementado con Faiss, lo que permite búsquedas rápidas y eficientes en alta dimensionalidad, sin necesidad de reducir las dimensiones. Esto demuestra la capacidad de los métodos basados en hashing para superar las limitaciones de técnicas tradicionales.
+   + KNN-RTree, aunque efectivo para pequeñas colecciones, no maneja bien las dimensiones altas, destacando una limitación inherente a los índices espaciales.
+2. Conclusiones principales
+   + Para grandes colecciones, KNN-HighD con LSH es el enfoque más eficiente, mientras que los métodos secuenciales y basados en R-Tree son significativamente más lentos. Esto subraya la importancia de elegir técnicas especializadas para escenarios de alta dimensionalidad.
+   + KNN-RTree presenta limitaciones en alta dimensionalidad, siendo más adecuado para colecciones pequeñas o datos con pocas dimensiones.
+   + PostgreSQL supera ampliamente a SPIMI en términos de tiempo de ejecución y escalabilidad, gracias a su infraestructura optimizada para búsqueda e indexación.
+3. Recomendaciones futuras
+   + Experimentar con diferentes configuraciones de Faiss, como el número de buckets o el tipo de hashing.
+   + Investigar variantes como X-Tree o R-Tree*, que son más robustas en alta dimensionalidad.
+   + Ampliar las pruebas a conjuntos de datos más grandes para observar cómo cada método escala y cómo las diferencias de rendimiento evolucionan con un aumento significativo en la cantidad de datos.
+   + 
 
