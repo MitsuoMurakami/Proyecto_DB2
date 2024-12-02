@@ -94,8 +94,11 @@ O(log(k)) es el costo del heap donde k es el tamaño del heap
 Total: O(N x D) + O(N x log(k))
 - Optimizaciones realizadas
 En cuanto a las optimizaciónes relizadas como se indico usamos normalización y PCA para una mayor eficiencia, a parte de esto aplanamos las características para poder mapear los indices de las canciones y usar 1 KNN en vez de 20, despues usamos el max-heap gracias a las colas de prioridad que nos ahorra bastantes operaciones en memoria y finalmente usamos un sistema de votación para obtener el top_k.
+
 ![image](https://github.com/user-attachments/assets/e2c73fcc-cfaf-40b3-9632-9dbe86480af6)
 
+#### Indexacion R_tree
+![image](https://github.com/user-attachments/assets/a5a02885-cc22-4c5b-b36c-f96a3aec7a4b)
 #### KNN R_tree
 - Implementación (si aplica)
 - Limitaciones y ventajas
