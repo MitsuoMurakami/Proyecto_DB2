@@ -114,6 +114,8 @@ En cuanto a las optimizaciónes relizadas como se indico usamos normalización y
    * 
 
 ## Frontend
+![Screenshot 2024-12-01 195624](https://github.com/user-attachments/assets/fe7e652e-3f44-4384-b641-8119c301c537)
+![Screenshot 2024-12-01 195517](https://github.com/user-attachments/assets/b526db19-73f5-4839-ac6d-231af5fdcd6f)
 
 ### Interfaz Gráfica
 - Tecnologías utilizadas
