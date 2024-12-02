@@ -78,7 +78,7 @@ Un índice GIN almacena un conjunto de pares (clave, lista de contabilización),
 
    * Se utilizó IndexLSH debido a la alta dimensionalidad de la data. Este índice utiliza un método de cálculo de distancia de bajo costo, Hamming distance. Además de utilizar vectores binarios.
 
-### Búsquedas
+#### Preprocesamiento y Extracción de Características
 Se comenzo haciendo el preprocesamiento de los audios de 11883 canciones, cada uno de 30 segundos. Estos archivos de audio se procesaron con Librosa y se uso Mel Frequency Cepstral Coefficient (MFCC) para extraer los feature vectors de las canciones. Con ello, se obtuvo 20 descriptores locales por cada canción, cada uno de dimension de 1280. 
 
 
@@ -89,12 +89,12 @@ Para las búsquedas del KNN con heap y KNN_R_tree se aplicó PCA para reducir la
 La búsqueda KNN se implementó utilizando colas de prioridad basada en un max-heap para identificar las canciones más cercanas en donde:
 Primero calculamos la distancia con cada vector característico de las canciones, gracias a esto podemos hacer el max-heap, para luego extraer los índices de los vecinos más cercanos, dividiendolo por las characteristics que en nuestro caso son 20. Finalmente, usamos majority voting y contamos cuantas veces aparece cada identificador para obtener el top_k vecinos más cercanos.
 - Complejidad computacional
-Donde N es: numero de canciones que tenemos.
+Donde N es: número de canciones que tenemos.
 D: las dimensiones que contiene cada canción
 O(log(k)) es el costo del heap donde k es el tamaño del heap
 Total: O(N x D) + O(N x log(k))
 - Optimizaciones realizadas
-En cuanto a las optimizaciónes relizadas como se indico usamos normalización y PCA para una mayor eficiencia, a parte de esto aplanamos las características para poder mapear los indices de las canciones y usar 1 KNN en vez de 20, despues usamos el max-heap gracias a las colas de prioridad que nos ahorra bastantes operaciones en memoria y finalmente usamos un sistema de votación para obtener el top_k.
+En cuanto a las optimizaciónes relizadas como se indicó usamos normalización y PCA para una mayor eficiencia, a parte de esto aplanamos las características para poder mapear los índices de las canciones y usar 1 KNN en vez de 20, después usamos el max-heap gracias a las colas de prioridad que nos ahorra bastantes operaciones en memoria y finalmente usamos un sistema de votación para obtener el top_k.
 
 ![image](https://github.com/user-attachments/assets/e2c73fcc-cfaf-40b3-9632-9dbe86480af6)
 
@@ -124,22 +124,49 @@ En cuanto a las optimizaciónes relizadas como se indico usamos normalización y
 - Al índice LSH se le pasan los datos como vectores donde n_bits es un parámetro utilizado para mapear estos features de entrada en la función de hashing. Este valor en la librería de faiss decide, si este es menor o igual a la dimensión del vector, utiliza proyectores ortogonales, caso contrario, marcos ajustados. Es un método más preciso ya que marcos ajustados es una técnica representativa (binaria) que mantiene las relaciones sin perder información importante. Esto ayuda a que el cálculo con Hamming distance sea más eficiente, donde se calcula la cantidad de diferencias entre bits de los vectores.
 
 ## Frontend
-![Screenshot 2024-12-01 195624](https://github.com/user-attachments/assets/fe7e652e-3f44-4384-b641-8119c301c537)
-![Screenshot 2024-12-01 195517](https://github.com/user-attachments/assets/b526db19-73f5-4839-ac6d-231af5fdcd6f)
 
-### Interfaz Gráfica
-- Tecnologías utilizadas
-- Arquitectura de la GUI
-- Principales características
+Tecnologías utilizadas: El desarrollo de la interfaz se hizo con Gradio por su facilidad de uso e integracion en Python. Ademas, Gradio proporciona bloques predefinidos para reproducir audio, mostrar texto, entre otros, lo que facilitó el desarrollo de la interfaz.
 
 ### Manual de Usuario
-1. Instalación
-2. Configuración
-3. Uso básico
-4. Funcionalidades avanzadas
+1. Instalación: Para instalar las librerías necesarias crear un environment con conda y ejecutar el siguiente comando:
 
+```bash
+conda create -n myenv python=3.8
+conda activate myenv
+pip install -r requirements.txt
+conda install -c pytorch faiss-cpu=1.9.0
+```
+2. Ejecución: Para ejecutar la interfaz, ejecutar todos los bloques los Jupyter Notebooks de la carpeta Parte2/SPIMI_GIN.ipynb y Parte3/R-tree/KNN_s.ipynb. Finalmente, abrir el navegador y dirigirse a la dirección http://localhost:7860/ para acceder a la interfaz.
+3. Uso:
+
+   * **Parte2/SPIMI_GIN.ipynb**: 
+     * Las consultas en lenguaje natural para obtener canciones similares se realizan ingresando un texto en el cuadro 'Query' de SPIMI y presionando el botón "Get results". Se mostrarán las canciones más similares en la tabla de resultados.
+     * Las consultas usando sintaxis de PostgreSQL se realizan ingresando un texto en el cuadro 'Query' de GIN y presionando el botón "Get results". Se mostrarán las canciones más similares en la tabla de resultados. En *select* se coloca las columnas que se quiere visualizar, en *liketo* la consulta y en *limit* la cantidad de resultados requeridos. En la siguiente tabla se muestra un ejemplo de la sintaxis a usar:
+     * Columnas disponibles: track_id, track_name, track_artist, lyrics, track_popularity, track_album_id, track_album_name, track_album_release_date, playlist_name, playlist_id, playlist_genre, playlist_subgenre, danceability, energy, key, loudness, mode, speechiness, acousticness, instrumentalness, liveness, valence, tempo, duration_ms, language.
+     * Ejemplo de sintaxis:
+          ```sql
+             select track_name,track_artist,lyrics from Canciones 
+             where lyric liketo 'She played the fiddle in an Irish band But she fell in love with an English man Kissed' 
+             limit 10;
+          ```
+
+   * **Parte3/R-tree/KNN_s.ipynb**:
+     * En esta interfaz se puede reproducir cualquiera de las más de 10000 canciones disponibles usando el reproductor Song Preview. 
+     * Para realizar una consulta acerca de la canción que se está reproduciendo, se debe ingresar una query con sintaxis SQL. Esta consulta tiene la siguiente estructura: en *select* se coloca las columnas que se quiere visualizar (diseñado para soportar unicamente song_id), en *from* se coloca la tabla de la base de datos 'spotify_songs', en *using* se coloca el KNN que se quiere usar, en *where* se coloca el nombre de la cancion buscada y en *limit* la cantidad de resultados requeridos.
+     * Los nombres de los KNN soportados son: knn_search_lsh, knn_top_R_tree, knn_top_lineal.
+     * Ejemplo de sintaxis:
+          ```sql
+             select song_id from spotify_songs using knn_search_lsh where song_name = '$20 Fine' LIMIT 5
+          ```
+     * Una vez que se tenga la query, colocarla en el cuadro de texto 'Search Query' y presionar el botón "Get results". Se mostrarán los nombres de las canciones más similares en la tabla de resultados.
 ### Capturas de Pantalla
 [Incluir capturas de pantalla relevantes con descripciones]
+
+#### Indice invertido: Interfaz para consultas
+![Screenshot 2023-12-01 195517](https://github.com/user-attachments/assets/b526db19-73f5-4839-ac6d-231af5fdcd6f)
+
+#### Indice invertido: Ejemplo de consulta y respuesta
+![Screenshot 2023-12-01 195624](https://github.com/user-attachments/assets/fe7e652e-3f44-4384-b641-8119c301c537)
 
 ## Experimentación
 
