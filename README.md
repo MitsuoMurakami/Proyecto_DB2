@@ -141,11 +141,6 @@ En cuanto a las optimizaciónes relizadas como se indico usamos normalización y
 ### Capturas de Pantalla
 [Incluir capturas de pantalla relevantes con descripciones]
 
-### Análisis Comparativo ??????
-- Comparación con implementaciones similares
-- Ventajas y desventajas
-- Características únicas
-
 ## Experimentación
 
 ### Resultados Experimentales
