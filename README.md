@@ -165,32 +165,39 @@ conda install -c pytorch faiss-cpu=1.9.0
 #### Indice invertido: Interfaz para consultas
 ![Screenshot 2023-12-01 195517](https://github.com/user-attachments/assets/b526db19-73f5-4839-ac6d-231af5fdcd6f)
 
-#### Indice invertido: Ejemplo de consulta y respuesta
+#### Índice invertido: Ejemplo de consulta y respuesta
 ![Screenshot 2023-12-01 195624](https://github.com/user-attachments/assets/fe7e652e-3f44-4384-b641-8119c301c537)
-![Screenshot 2024-12-02 030817](https://github.com/user-attachments/assets/a7e1da7a-eec6-4659-83ee-ab51fc63fed7)
+
+
+#### Indice multidimensional: Interfaz para consultas
 ![Screenshot 2024-12-02 030908](https://github.com/user-attachments/assets/b5b8ec91-625f-4ccf-970d-4d6c351d6d7a)
+
+#### Índice multidimensional: Ejemplo de consulta y respuesta
+![Screenshot 2024-12-02 030817](https://github.com/user-attachments/assets/a7e1da7a-eec6-4659-83ee-ab51fc63fed7)
 
 ## Experimentación
 
 ### Resultados Experimentales
 #### Tablas de Resultados
 Tabla sobre la medicion del performance entre SPIMI (implementacion propia) y PostgreSQL
-|    N     | SPIMI   | Postgres |
-|----------|---------|----------|
-| 1000     | 0.5931  | 0.0097   |
-| 2000     | 0.5718  | 0.0152   |
-| 4000     | 0.5843  | 0.0558   |
-| 6000     | 0.5805  | 0.035    |
-| 8000     | 0.5631  | 0.0456   |
-| 10000    | 0.6636  | 0.054    |
-| 12000    | 0.5873  | 0.0637   |
-| 14000    | 0.5862  | 0.0739   |
-| 16000    | 0.5829  | 0.0861   |
-| 18000    | 0.6367  | 0.0983   |
+
+|    N     | SPIMI   | GIN    |
+|----------|---------|--------|
+| 1000     | 0.5931  | 0.0097 |
+| 2000     | 0.5718  | 0.0152 |
+| 4000     | 0.5843  | 0.0558 |
+| 6000     | 0.5805  | 0.035  |
+| 8000     | 0.5631  | 0.0456 |
+| 10000    | 0.6636  | 0.054  |
+| 12000    | 0.5873  | 0.0637 |
+| 14000    | 0.5862  | 0.0739 |
+| 16000    | 0.5829  | 0.0861 |
+| 18000    | 0.6367  | 0.0983 |
 
 
 Tabla sobre el tiempo de ejecución entre KNN-RTree, KNN-secuencial y el KNN-HighD sobre una colección de objetos de
 tamaño N con el valor de K = 8
+
 |    N     | KNN secuencial | KNN-Rtree | KNN-HighD |
 |----------|----------------|-----------|------------
 | 700      |      1.7       |    1.4    |   0.0015  | 
@@ -202,23 +209,25 @@ tamaño N con el valor de K = 8
 | 11000    |      15.6      |    35.8   |   0.003   |
 
 #### Gráficos Comparativos
+
+##### SPIMI vs PostgreSQL
 ![image](https://github.com/user-attachments/assets/66f8eed6-7f25-48a9-9222-7a07cbdf6066)
 
+##### KNN-RTree vs KNN-secuencial vs KNN-HighD
 ![image](https://github.com/user-attachments/assets/b3c6fdc3-1509-4408-8992-ee29cb90cdc3)
 
 
 ### Análisis y Discusión
-1. Interpretación de resultados
+
    + PostgreSQL vs SPIMI: PostgreSQL demuestra ser superior, gracias a sus optimizaciones internas. Por otro lado, SPIMI, cumple su propósito de manera funcional y demuestra ser una solución sólida en colecciones pequeñas y medianas.
    + KNN-HighD se beneficia del uso de LSH implementado con Faiss, lo que permite búsquedas rápidas y eficientes en alta dimensionalidad, sin necesidad de reducir las dimensiones. Esto demuestra la capacidad de los métodos basados en hashing para superar las limitaciones de técnicas tradicionales.
-   + KNN-RTree, aunque efectivo para pequeñas colecciones, no maneja bien las dimensiones altas, destacando una limitación inherente a los índices espaciales.
-2. Conclusiones principales
+   + KNN-RTree, aunque efectivo para pequeñas colecciones, no maneja bien las dimensiones altas, destacando una limitación inherente a los índices espaciales. 
+### Conclusiones principales
    + Para grandes colecciones, KNN-HighD con LSH es el enfoque más eficiente, mientras que los métodos secuenciales y basados en R-Tree son significativamente más lentos. Esto subraya la importancia de elegir técnicas especializadas para escenarios de alta dimensionalidad.
    + KNN-RTree presenta limitaciones en alta dimensionalidad, siendo más adecuado para colecciones pequeñas o datos con pocas dimensiones.
    + PostgreSQL supera ampliamente a SPIMI en términos de tiempo de ejecución y escalabilidad, gracias a su infraestructura optimizada para búsqueda e indexación.
-3. Recomendaciones futuras
+### Recomendaciones futuras
    + Experimentar con diferentes configuraciones de Faiss, como el número de buckets o el tipo de hashing.
    + Investigar variantes como X-Tree o R-Tree*, que son más robustas en alta dimensionalidad.
    + Ampliar las pruebas a conjuntos de datos más grandes para observar cómo cada método escala y cómo las diferencias de rendimiento evolucionan con un aumento significativo en la cantidad de datos.
-   + 
 
