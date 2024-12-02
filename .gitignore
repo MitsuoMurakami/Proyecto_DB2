@@ -9,3 +9,4 @@ __pycache__
 Parte2/preprocessed_words.txt
 Parte2/blocks
 Parte3/R-tree/feature_spotify.pkl
+Parte3/R-tree/ivfpq.ipynb
