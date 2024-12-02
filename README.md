@@ -77,13 +77,26 @@ Un índice GIN almacena un conjunto de pares (clave, lista de contabilización),
 - Estructura de datos implementada
 
 ### Búsquedas
+Lo que se hizo primero es tomar los audios de 11903 canciones y de eso sus primeros 30 segundos de cada canción, de esto obtuvimos que cada canción tiene 20 descriptores locales  y la mayoria de estos descriptores tienen una dimension de 1280, despúes de esto antes de guardar el archivo, verificamos que todos los descriptores tengan la misma dimensión y al parecer 20 no tenian la misma dimension, por lo que nos quedamos con 11883 cancionese en total.
+
+
+Para las busquedas del KNN con heap y KNN_R_tree  hemos aplicado PCA para reducir la dimensionalidad,ya que cuando la dimensionalidad es muy grande estos modelos se hacen muy deficientes, es por eso que despues de la recolección de vectores característicos y su respectiva normalización, aplicamos PCA y aplicando el 90% de varianza explicada que toma el 90% de las dimensiones más importantes, asi logrando que cada descriptor local tenga solo 154 dimensiones.
+
+Finalmente aplanamoss los descriptores quedandonos con una dimension de (237664,154) donde cada 20 numeros del 0 ql 237664 se refiere a una canción , por lo que ahora si podremos usar el KNN.
 #### KNN Search
 - Implementación
+La busqueda KNN se implemento utilizando colas de prioridad basado en un max-heap para identificar las canciones mas cercanas en donde:
+Primero calculamos la distancia de invertida con cada vector característico de las canciones, gracias a esto podemos hacer el max-heap, para luego extraer los indices de los vecinos más cercanos, dividiendolo por las caracteristicas que en nuestro caso son 20. Finalmente contamos cuantas veces aparece cada identificador y obtenemos el top_k vecinos mas cercanos.
 - Complejidad computacional
+Donde N es: numero de canciones que tenemos.
+D: las dimensiones que contiene cada canción
+O(log(k)) es el costo del heap donde k es el tamaño del heap
+Total: O(N x D) + O(N x log(k))
 - Optimizaciones realizadas
+En cuanto a las optimizaciónes relizadas como se indico usamos normalización y PCA para una mayor eficiencia, a parte de esto aplanamos las características para poder mapear los indices de las canciones y usar 1 KNN en vez de 20, despues usamos el max-heap gracias a las colas de prioridad que nos ahorra bastantes operaciones en memoria y finalmente usamos un sistema de votación para obtener el top_k.
 ![image](https://github.com/user-attachments/assets/e2c73fcc-cfaf-40b3-9632-9dbe86480af6)
 
-#### Range Search
+#### KNN R_tree
 - Implementación (si aplica)
 - Limitaciones y ventajas
 
@@ -101,6 +114,8 @@ Un índice GIN almacena un conjunto de pares (clave, lista de contabilización),
    * 
 
 ## Frontend
+![Screenshot 2024-12-01 195624](https://github.com/user-attachments/assets/fe7e652e-3f44-4384-b641-8119c301c537)
+![Screenshot 2024-12-01 195517](https://github.com/user-attachments/assets/b526db19-73f5-4839-ac6d-231af5fdcd6f)
 
 ### Interfaz Gráfica
 - Tecnologías utilizadas
