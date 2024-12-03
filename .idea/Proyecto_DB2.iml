@@ -5,7 +5,7 @@
       <excludeFolder url="file://$MODULE_DIR$/.venv" />
       <excludeFolder url="file://$MODULE_DIR$/Parte3/data_extraction/data_previews" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.12 (Proyecto_DB2)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="C:\Users\Usuario\miniconda3" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="TemplatesService">
