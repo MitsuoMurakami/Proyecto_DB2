@@ -123,8 +123,7 @@ En cuanto a las optimizaciónes relizadas como se indicó usamos normalización 
 
 - Al índice LSH se le pasan los datos como vectores donde n_bits es un parámetro utilizado para mapear estos features de entrada en la función de hashing. Este valor es para indicar la cantidad de bits que representan a cada feature, de tal manera que si es menor a la dimensión de la data original, se estaría perdiendo información, sin embargo, faiss utiliza el método de vectores ortogonales. Si n_bits es mayor a la dimensión original, se utiliza el método de marco ajustado ya que este es una técnica representativa (binaria) que mantiene las relaciones sin perder información importante. Esto ayuda a que el cálculo con Hamming distance sea más eficiente, donde se calcula la cantidad de diferencias entre bits de los vectores.
 
-![lsh drawio](https://github.com/user-attachments/assets/d98efdf8-3c55-4c09-aedf-479d56fcc468)
-
+![lsh drawio](https://github.com/user-attachments/assets/a4a9ec49-b36b-4e24-a2b2-63b8109c556f)
 
 ## Frontend
 
